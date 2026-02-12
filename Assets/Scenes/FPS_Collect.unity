@@ -6070,6 +6070,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: LongWall (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 4713100128855349848, guid: 454627b132a68cb4f9bb2edca5db024a, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6984,8 +6988,13 @@ MonoBehaviour:
   ManualFloorY: 0
   WallMargin: 0.2
   Count: 40000
-  SpawnHeightOffset: 0.1
+  SpawnHeightOffset: 0.01
   HeightVariation: 0.5
+  ObstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  CheckRadius: 0.3
+  MaxRetries: 10
 --- !u!1001 &2043386807
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -38,6 +38,16 @@ namespace Vampire.Rice
         [Tooltip("Randomize spawn height within this range")]
         public float HeightVariation = 0.5f;
         
+        [Header("Obstacle Avoidance")]
+        [Tooltip("Layer mask for detecting obstacles that should block rice spawning")]
+        public LayerMask ObstacleLayerMask = ~0; // All layers by default
+        
+        [Tooltip("Radius to check for obstacles around spawn position")]
+        public float CheckRadius = 0.3f;
+        
+        [Tooltip("Maximum attempts to find a valid spawn position before giving up")]
+        public int MaxRetries = 10;
+        
         /// <summary>
         /// Calculate spawn area bounds from floor objects
         /// </summary>
@@ -216,7 +226,10 @@ namespace Vampire.Rice
                 Size = (float3)spawnBounds.size,
                 Count = authoring.Count,
                 SpawnOnFloor = true,
-                FloorY = floorY + authoring.SpawnHeightOffset
+                FloorY = floorY + authoring.SpawnHeightOffset,
+                ObstacleLayerMask = authoring.ObstacleLayerMask.value,
+                CheckRadius = authoring.CheckRadius,
+                MaxRetries = authoring.MaxRetries
             });
             
             UnityEngine.Debug.Log($"[RiceSpawnPointBaker] ✅ RiceSpawnPoint component added for zone '{authoring.ZoneName}' - Size: {spawnBounds.size}");

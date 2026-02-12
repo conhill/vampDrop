@@ -35,7 +35,11 @@ namespace Vampire.Rice
                 CollectionRadius = authoring.CollectionRadius
             });
             
-            UnityEngine.Debug.Log($"[RiceEntityBaker] ✅ RiceEntity component added");
+            // Add RiceHighlighted component (disabled by default) for zero-cost highlighting
+            AddComponent(entity, new RiceHighlighted());
+            SetComponentEnabled<RiceHighlighted>(entity, false);
+            
+            UnityEngine.Debug.Log($"[RiceEntityBaker] ✅ RiceEntity + RiceHighlighted components added");
         }
     }
 }

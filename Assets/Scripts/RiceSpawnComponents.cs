@@ -21,5 +21,10 @@ namespace Vampire.Rice
         public int Count;
         public bool SpawnOnFloor;
         public float FloorY;
+        
+        // Obstacle avoidance settings
+        public int ObstacleLayerMask;
+        public float CheckRadius;
+        public int MaxRetries;
     }
 }

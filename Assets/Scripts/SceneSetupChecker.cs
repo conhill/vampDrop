@@ -116,7 +116,14 @@ namespace Vampire
                     // Check for RiceSpawnPoint components
                     var spawnPointQuery = world.EntityManager.CreateEntityQuery(typeof(Rice.RiceSpawnPoint));
                     var spawnPointCount = spawnPointQuery.CalculateEntityCount();
-                    Debug.Log($"[ECS] RiceSpawnPoint components: {spawnPointCount}");
+                    if (spawnPointCount == 0)
+                    {
+                        Debug.LogError($"[ECS] ❌ NO RiceSpawnPoint components found! Rice will NOT spawn. Add RiceSpawnPointAuthoring GameObjects to your scene.");
+                    }
+                    else
+                    {
+                        Debug.Log($"[ECS] ✅ RiceSpawnPoint components: {spawnPointCount}");
+                    }
                     spawnPointQuery.Dispose();
                     
                     // Check for Rice entities
