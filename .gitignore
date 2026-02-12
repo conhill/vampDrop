@@ -2,6 +2,14 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+
+# Unity Version Control (Plastic SCM)
+.plastic/
+ignore.conf
+
+# Unity auto-save backups
+*_Recovery*
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
