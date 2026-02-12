@@ -1,0 +1,20 @@
+{
+  "name": "Level 2 - Funnel Pattern",
+  "rows": 12,
+  "columns": 9,
+  "cellSize": 1.0,
+  "grid": [
+    "wall", "dz", "dz", "dz", "dz", "dz", "dz", "dz", "wall",
+    "wall", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "wall",
+    "wall", "wall\\", "empty", "gate:x2", "empty", "gate:x2", "empty", "wall/", "wall",
+    "wall", "null", "wall\\", "empty", "empty", "empty", "wall/", "null", "wall",
+    "wall", "null", "null", "wall\\", "empty", "wall/", "null", "null", "wall",
+    "wall", "null", "null", "empty", "gate:x3", "empty", "null", "null", "wall",
+    "wall", "null", "null", "wall\\", "empty", "wall/", "null", "null", "wall",
+    "wall", "null", "wall\\", "empty", "gate:x4", "empty", "wall/", "null", "wall",
+    "wall", "wall\\", "empty", "empty", "empty", "empty", "empty", "wall/", "wall",
+    "wall", "empty", "empty", "empty", "gate:x5", "empty", "empty", "empty", "wall",
+    "wall", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "wall",
+    "wall", "goal", "goal", "goal", "goal", "goal", "goal", "goal", "wall"
+  ]
+}

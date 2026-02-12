@@ -1,0 +1,180 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44657ea10175d8446a57b45c69e05c00, type: 3}
+  m_Name: IntroScene
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.ComicSequenceConfig
+  sequenceId: intro
+  sequenceName: Game Intro
+  panels:
+  - panelName: Opening
+    widthMode: 0
+    customWidth: 0
+    autoDuration: 0
+    elements:
+    - elementName: Run
+      sprite: {fileID: 21300000, guid: 2fa6d17b58110344ba2b6581b953ec15, type: 3}
+      layer: 0
+      sizeMode: 0
+      customSize: {x: 0, y: 0}
+      position: {x: 0, y: 0}
+      scale: 1
+      animation: 12
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    - elementName: Year
+      sprite: {fileID: 21300000, guid: e1f35ea6c697c184cb59531007a002f0, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.8, y: 0.9}
+      scale: 1
+      animation: 1
+      appearDelay: 2
+      animationDuration: 1
+      panDistance: 0
+      zoomScale: 0
+    - elementName: Time
+      sprite: {fileID: 21300000, guid: 975fa3be06c56d64194c2545ce5817f1, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.8, y: 0.7}
+      scale: 0.8
+      animation: 1
+      appearDelay: 4
+      animationDuration: 1
+      panDistance: 0
+      zoomScale: 0
+    soundEffect: {fileID: 0}
+    music: {fileID: 0}
+    musicVolume: 0
+  - panelName: Character
+    widthMode: 1
+    customWidth: 900
+    autoDuration: 0
+    elements:
+    - elementName: Outside
+      sprite: {fileID: 21300000, guid: d321bd07fe956d543a35747cfd7fb2f0, type: 3}
+      layer: 0
+      sizeMode: 0
+      customSize: {x: 900, y: 1200}
+      position: {x: 0, y: 0}
+      scale: 1
+      animation: 0
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    - elementName: lost_text
+      sprite: {fileID: 21300000, guid: 60e266c40c248f346bb0050ceb788e87, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.6, y: 0.2}
+      scale: 1
+      animation: 1
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    soundEffect: {fileID: 0}
+    music: {fileID: 0}
+    musicVolume: 0
+  - panelName: bunker_out
+    widthMode: 0
+    customWidth: 0
+    autoDuration: 0
+    elements:
+    - elementName: bunker_door
+      sprite: {fileID: 21300000, guid: 855d93821fe951742af3fe78b2197840, type: 3}
+      layer: 0
+      sizeMode: 0
+      customSize: {x: 1920, y: 1300}
+      position: {x: 0, y: 0}
+      scale: 1
+      animation: 0
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    - elementName: Outside
+      sprite: {fileID: 21300000, guid: 60e266c40c248f346bb0050ceb788e87, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.6, y: 0.6}
+      scale: 1
+      animation: 1
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    soundEffect: {fileID: 0}
+    music: {fileID: 0}
+    musicVolume: 0
+  - panelName: Bunker_in
+    widthMode: 0
+    customWidth: 0
+    autoDuration: 0
+    elements:
+    - elementName: Trap
+      sprite: {fileID: 21300000, guid: a3ddbf4029a70f84aaaa23bf2484d46f, type: 3}
+      layer: 0
+      sizeMode: 0
+      customSize: {x: 0, y: 0}
+      position: {x: 0, y: 0}
+      scale: 1
+      animation: 0
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    soundEffect: {fileID: 0}
+    music: {fileID: 0}
+    musicVolume: 0
+  - panelName: Trap
+    widthMode: 1
+    customWidth: 700
+    autoDuration: 0
+    elements:
+    - elementName: speaker
+      sprite: {fileID: 21300000, guid: 108770da23685244d988e30146efe58a, type: 3}
+      layer: 0
+      sizeMode: 2
+      customSize: {x: 1080, y: 1080}
+      position: {x: 0, y: 1}
+      scale: 1
+      animation: 0
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    - elementName: rice
+      sprite: {fileID: 21300000, guid: b096e239dd25bdf4baeeb7696b181250, type: 3}
+      layer: 0
+      sizeMode: 2
+      customSize: {x: 1080, y: 1080}
+      position: {x: 0, y: 0.5}
+      scale: 1
+      animation: 0
+      appearDelay: 0
+      animationDuration: 0
+      panDistance: 0
+      zoomScale: 0
+    soundEffect: {fileID: 0}
+    music: {fileID: 0}
+    musicVolume: 0
+  nextSceneName: FPS_Collect
+  sequenceMusic: {fileID: 0}
+  musicVolume: 0.5

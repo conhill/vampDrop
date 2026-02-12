@@ -1,0 +1,22 @@
+{
+  "name": "Level 3 - Cup Heroes Style",
+  "rows": 14,
+  "columns": 9,
+  "cellSize": 1.0,
+  "grid": [
+    "wall", "dz", "dz", "dz", "dz", "dz", "dz", "dz", "wall",
+    "wall", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "wall",
+    "wall", "empty", "gate:x2", "empty", "empty", "empty", "gate:x2", "empty", "wall",
+    "wall", "wall", "empty", "empty", "empty", "empty", "empty", "wall", "wall",
+    "wall", "wall", "empty", "empty", "empty", "empty", "empty", "wall", "wall",
+    "wall", "empty", "empty", "gate:x3", "empty", "gate:x4", "empty", "empty", "wall",
+    "wall", "empty", "wall", "empty", "empty", "empty", "wall", "empty", "wall",
+    "wall", "wall", "empty", "empty", "empty", "empty", "empty", "wall", "wall",
+    "wall", "empty", "empty", "empty", "gate:x5", "empty", "empty", "empty", "wall",
+    "wall", "empty", "wall", "empty", "empty", "empty", "wall", "empty", "wall",
+    "wall", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "wall",
+    "wall", "empty", "empty", "gate:x6", "empty", "gate:x6", "empty", "empty", "wall",
+    "wall", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "wall",
+    "wall", "goal", "goal", "goal", "goal", "goal", "goal", "goal", "wall"
+  ]
+}
