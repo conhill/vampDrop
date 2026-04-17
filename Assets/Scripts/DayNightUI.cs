@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 using TMPro;
 
 namespace Vampire.DropPuzzle
@@ -6,16 +7,30 @@ namespace Vampire.DropPuzzle
     /// <summary>
     /// UI display for the day/night cycle.
     ///
+    /// Supports two display modes:
+    ///   1. UI Toolkit — assign a UIDocument and name your UXML elements:
+    ///        day-night-icon   (VisualElement, uses background-image)
+    ///        day-night-timer  (Label)
+    ///   2. Legacy TMP — assign TextMeshProUGUI references directly.
+    ///
     /// OPTIMISED:
-    ///   - TMP text is only rebuilt when the displayed second or phase changes,
-    ///     not every frame. This eliminates ~2 string allocations per frame.
-    ///   - OnGUI GUIStyle objects are cached on first use instead of being
-    ///     re-allocated every frame.
-    ///   - Emoji characters (☀️ 🌙) replaced with ASCII equivalents to avoid
-    ///     the TMP glyph-fallback warning that caused extra allocations.
+    ///   - Text/icon only updated when the displayed second or phase changes.
+    ///   - OnGUI GUIStyle objects are cached on first use.
     /// </summary>
     public class DayNightUI : MonoBehaviour
     {
+        [Header("UI Toolkit (UI Builder)")]
+        [Tooltip("UIDocument that contains your UXML HUD. Leave null to use TMP/OnGUI instead.")]
+        public UIDocument uiDocument;
+        [Tooltip("Sprite shown during Day phase (assigned to 'day-night-icon' element)")]
+        public Sprite sunSprite;
+        [Tooltip("Sprite shown during Night phase (assigned to 'day-night-icon' element)")]
+        public Sprite moonSprite;
+
+        // Cached UI Toolkit element references
+        private Label _uitkTimerLabel;
+        private VisualElement _uitkIconElement;
+
         [Header("UI References (Optional — will use OnGUI if null)")]
         public TextMeshProUGUI timeOfDayText;
         public TextMeshProUGUI countdownText;
@@ -52,6 +67,19 @@ namespace Vampire.DropPuzzle
                 _cycle.OnNightStart      += OnNightStart;
                 _cycle.OnDaylightWarning += OnDaylightWarning;
             }
+
+            // Hook up UI Toolkit elements if a UIDocument is assigned
+            if (uiDocument != null)
+            {
+                var root = uiDocument.rootVisualElement;
+                _uitkTimerLabel  = root.Q<Label>("day-night-timer");
+                _uitkIconElement = root.Q<VisualElement>("day-night-icon");
+
+                if (_uitkTimerLabel == null)
+                    Debug.LogWarning("[DayNightUI] No Label named 'day-night-timer' found in UXML.");
+                if (_uitkIconElement == null)
+                    Debug.LogWarning("[DayNightUI] No VisualElement named 'day-night-icon' found in UXML.");
+            }
         }
 
         private void OnDestroy()
@@ -82,10 +110,20 @@ namespace Vampire.DropPuzzle
             if (phaseChanged)
             {
                 _lastPhase = phase;
+                bool isDay = phase == DayNightCycleManager.TimeOfDay.Day;
+
+                // UI Toolkit icon swap
+                if (_uitkIconElement != null)
+                {
+                    Sprite icon = isDay ? sunSprite : moonSprite;
+                    if (icon != null)
+                        _uitkIconElement.style.backgroundImage = new StyleBackground(icon);
+                }
+
+                // Legacy TMP
                 if (timeOfDayText != null && showTimeOfDay)
                 {
                     // ASCII alternatives avoid TMP glyph-fallback allocations
-                    bool isDay = phase == DayNightCycleManager.TimeOfDay.Day;
                     timeOfDayText.text  = isDay ? "* DAY" : "~ NIGHT";
                     timeOfDayText.color = isDay
                         ? new Color(1f, 0.9f, 0.4f)
@@ -96,17 +134,29 @@ namespace Vampire.DropPuzzle
             if (secondChanged)
             {
                 _lastDisplayedSecond = displaySecond;
+                string formatted = _cycle.GetFormattedTimeRemaining();
+
+                // UI Toolkit timer label
+                if (_uitkTimerLabel != null)
+                    _uitkTimerLabel.text = formatted;
+
+                // Legacy TMP
                 if (countdownText != null && showCountdown)
-                {
-                    // GetFormattedTimeRemaining builds a string — only call when second changes
-                    countdownText.text = _cycle.GetFormattedTimeRemaining();
-                }
+                    countdownText.text = formatted;
             }
 
             if (warningChanged)
             {
                 _lastWarning = warning;
                 _isWarning   = warning;
+
+                // UI Toolkit warning tint on timer
+                if (_uitkTimerLabel != null)
+                    _uitkTimerLabel.style.color = warning
+                        ? new StyleColor(warningColor)
+                        : new StyleColor(normalColor);
+
+                // Legacy TMP
                 if (countdownText != null)
                     countdownText.color = warning ? warningColor : normalColor;
             }

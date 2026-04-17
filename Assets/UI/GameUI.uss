@@ -1,0 +1,239 @@
+/* ============================================================
+   GameUI.uss  —  VAMP4 dungeon HUD theme
+   Unity USS differences from web CSS:
+     - No gap/calc/transform/translate
+     - border must be set per-side
+     - rgba() uses 0-1 for alpha
+     - Custom fonts need a FontAsset assigned via unity-font-definition
+   ============================================================ */
+
+/* ROOT ─────────────────────────────────────────────────────── */
+.root {
+    flex-grow: 1;
+    position: relative;
+}
+
+/* PANEL BASE ───────────────────────────────────────────────── */
+.panel {
+    background-color: rgb(26, 27, 32);
+    border-radius: 10px;
+    padding: 10px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.05);
+    border-right-color: rgba(255, 255, 255, 0.05);
+    border-top-color: rgba(255, 255, 255, 0.05);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.panel-title {
+    font-size: 13px;
+    color: rgb(255, 213, 79);
+    margin-bottom: 6px;
+    -unity-font-style: bold;
+}
+
+/* TOP BAR ──────────────────────────────────────────────────── */
+/* Centered horizontally via align-self on an absolute child.
+   If it drifts, adjust left manually. */
+.top-bar {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    align-self: center;
+    width: 420px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 20px;
+}
+
+.day-night-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.day-label {
+    font-size: 16px;
+    color: rgb(242, 242, 242);
+    -unity-font-style: bold;
+}
+
+.time-container {
+    align-items: flex-end;
+}
+
+.time-bar-bg {
+    width: 150px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.time-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(255, 213, 79);
+    border-radius: 4px;
+}
+
+.time-label {
+    font-size: 13px;
+    color: rgb(184, 184, 184);
+}
+
+/* LEFT PANEL ───────────────────────────────────────────────── */
+.left-panel {
+    position: absolute;
+    left: 10px;
+    top: 70px;
+    flex-direction: column;
+    width: 220px;
+}
+
+.quests-panel {
+    margin-bottom: 10px;
+}
+
+.quest-none {
+    font-size: 12px;
+    color: rgb(100, 100, 100);
+}
+
+.quest-item {
+    flex-direction: column;
+}
+
+.quest-title-label {
+    font-size: 13px;
+    color: rgb(242, 242, 242);
+    margin-bottom: 2px;
+}
+
+.quest-desc {
+    font-size: 11px;
+    color: rgb(160, 160, 160);
+    margin-bottom: 4px;
+}
+
+.quest-progress {
+    font-size: 11px;
+    color: rgb(122, 122, 122);
+    margin-bottom: 4px;
+}
+
+.quest-bar-bg {
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+}
+
+.quest-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: rgb(255, 213, 79);
+    border-radius: 3px;
+}
+
+.resource-panel {
+    flex-direction: row;
+    align-items: center;
+}
+
+.resource-text {
+    font-size: 22px;
+    color: rgb(242, 242, 242);
+    margin-left: 8px;
+}
+
+.resource-icon {
+    width: 28px;
+    height: 28px;
+}
+
+/* TOP RIGHT ────────────────────────────────────────────────── */
+.top-right {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    flex-direction: column;
+    width: 180px;
+}
+
+.currency-panel {
+    margin-bottom: 10px;
+}
+
+.currency-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+}
+
+.currency {
+    font-size: 18px;
+    color: rgb(255, 213, 79);
+    -unity-font-style: bold;
+}
+
+/* RICE BALLS ───────────────────────────────────────────────── */
+.riceball-panel {
+    margin-bottom: 10px;
+}
+
+.riceball-total {
+    font-size: 15px;
+    color: rgb(242, 242, 242);
+    margin-bottom: 6px;
+}
+
+.riceball-grid {
+    flex-direction: column;
+}
+
+.riceball-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.quality-label {
+    font-size: 12px;
+}
+
+.quality-count {
+    font-size: 12px;
+    color: rgb(220, 220, 220);
+    -unity-font-style: bold;
+}
+
+.fine      { color: rgb(180, 180, 180); }
+.good      { color: rgb(100, 200, 120); }
+.great     { color: rgb(90,  160, 255); }
+.excellent { color: rgb(220, 150, 255); }
+
+/* HELPERS ──────────────────────────────────────────────────── */
+.helpers-panel {
+    margin-bottom: 0;
+}
+
+.helper-summary {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.helper-summary-label {
+    font-size: 15px;
+    color: rgb(255, 213, 79);
+    -unity-font-style: bold;
+}
+
+.helper-list {
+    flex-direction: column;
+}

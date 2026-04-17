@@ -603,7 +603,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a69f3e8aeb6a534db031a0da39ae547, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.ComicSceneManager
-  availableSequences: []
+  availableSequences:
+  - {fileID: 11400000, guid: 707b7d9ad918b7e49af5e8b81857f141, type: 2}
+  - {fileID: 11400000, guid: 1a07b0a0d7570a449a1c21a651f18e61, type: 2}
   defaultSequence: {fileID: 11400000, guid: 707b7d9ad918b7e49af5e8b81857f141, type: 2}
   comicCanvas: {fileID: 1191947195}
   scrollingContainer: {fileID: 0}

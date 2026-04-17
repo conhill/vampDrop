@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cziberpv.unity-bridge": "https://github.com/cziberpv/unity-bridge.git",
     "com.unity.ai.assistant": "2.4.0-pre.1",
     "com.unity.ai.inference": "2.6.0",
     "com.unity.ai.navigation": "2.0.9",

@@ -34,6 +34,7 @@ namespace Vampire.DropPuzzle
         // Cached query — created once, reused every check to avoid per-call sync points
         private EntityQuery ballQuery;
         private EntityManager entityManager;
+        private bool ballQueryCreated = false;
         
         private struct BallTrackingData
         {
@@ -56,6 +57,7 @@ namespace Vampire.DropPuzzle
                     typeof(RiceBallPhysics),
                     typeof(LocalTransform)
                 );
+                ballQueryCreated = true;
             }
 
             // Subscribe to day/night events
@@ -74,7 +76,7 @@ namespace Vampire.DropPuzzle
                 DayNightCycleManager.Instance.OnNightEnd -= HandleNightEnd;
             }
 
-            if (ballQuery != null)
+            if (ballQueryCreated)
                 ballQuery.Dispose();
         }
         

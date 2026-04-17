@@ -11,6 +11,19 @@ namespace Vampire.DropPuzzle
     {
         [Header("Scene")]
         public string dropPuzzleSceneName = "DropPuzzle";
+
+        [Header("Comics")]
+        [Tooltip("Comic to show the first time the player goes outside (tutorialStep 4). " +
+                 "Set nextSceneName = 'DropPuzzle' on this asset.")]
+        public Vampire.ComicSequenceConfig goingOutsideComic;
+
+        [Tooltip("Comic to show on the second outside visit (after completing the tutorial drop). " +
+                 "Set nextSceneName = 'DropPuzzle' on this asset.")]
+        public Vampire.ComicSequenceConfig secondVisitComic;
+
+        // Persists for the session; the tutorial step guard also prevents re-triggering after reload
+        private static bool _goingOutsideComicShown = false;
+        private static bool _secondOutsideComicShown = false;
         
         [Header("UI Messages")]
         public string nightOnlyMessage = "⚠️ Ball Drop only available at NIGHT!\nTime remaining: {0}";
@@ -89,21 +102,50 @@ namespace Vampire.DropPuzzle
                 }
             }
             
-            // It's night time and have balls - allow entry
-            // Debug.Log("[BallDropEntry] Entering ball drop puzzle (Night time)");
-            
+            // Show "going outside" comic the first time (check step BEFORE notifying, as notify advances it)
+            bool isFirstTimeOutside = !_goingOutsideComicShown
+                && goingOutsideComic != null
+                && TutorialManager.Instance != null
+                && TutorialManager.Instance.tutorialStep == 4;
+
             // Notify tutorial manager that we're visiting ball drop (completes "Go Outside" quest)
             if (TutorialManager.Instance != null)
-            {
                 TutorialManager.Instance.NotifyBallDropVisit();
+
+            // Comic #4: second outside visit — fires after the tutorial drop is done (TutorialCompleted=true)
+            bool isSecondTimeOutside = !_secondOutsideComicShown
+                && secondVisitComic != null
+                && _goingOutsideComicShown
+                && PlayerDataManager.Instance != null
+                && PlayerDataManager.Instance.TutorialCompleted;
+
+            if (isFirstTimeOutside)
+            {
+                _goingOutsideComicShown = true;
+                // Override ensures the comic always lands in DropPuzzle regardless of
+                // what nextSceneName the ScriptableObject asset has set.
+                Vampire.ComicSceneManager.NextSceneOverride = dropPuzzleSceneName;
+                Vampire.ComicSceneLoader.LoadComic(goingOutsideComic);
             }
-            
-            LoadBallDropScene();
+            else if (isSecondTimeOutside)
+            {
+                _secondOutsideComicShown = true;
+                Vampire.ComicSceneManager.NextSceneOverride = dropPuzzleSceneName;
+                Vampire.ComicSceneLoader.LoadComic(secondVisitComic);
+            }
+            else
+            {
+                LoadBallDropScene();
+            }
         }
         
         private void LoadBallDropScene()
         {
-            SceneManager.LoadScene(dropPuzzleSceneName);
+            // Prefer GameSceneManager so rice hiding and data-passing hooks fire correctly
+            if (Vampire.GameSceneManager.Instance != null)
+                Vampire.GameSceneManager.Instance.TransitionToDropPuzzle();
+            else
+                SceneManager.LoadScene(dropPuzzleSceneName);
         }
         
         private void OnGUI()

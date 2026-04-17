@@ -305,7 +305,7 @@ namespace Vampire.DropPuzzle
                 return false;
             }
             
-            bool canAfford = playerData.TotalCurrency >= costCents;
+            bool canAfford = playerData.debugFreeUpgrades || playerData.TotalCurrency >= costCents;
             
             // Show cost
             GUI.Label(new Rect(x, y, maxWidth, 25), 

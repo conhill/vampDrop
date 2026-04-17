@@ -22,6 +22,10 @@ namespace Vampire.DropPuzzle
         [Header("Audio (Optional)")]
         public AudioClip craftingSound;
         public AudioClip qualityRollSound;
+
+        [Header("UI")]
+        [Tooltip("Uncheck to hide the legacy OnGUI crafting panel (use when UIController HUD is active)")]
+        public bool showLegacyUI = false;
         
         private bool isCrafting = false;
         private int lastCraftedCount = 0;
@@ -145,6 +149,7 @@ namespace Vampire.DropPuzzle
         
         private void OnGUI()
         {
+            if (!showLegacyUI) return;
             if (playerData == null) return;
             
             // Show crafting UI in top-right

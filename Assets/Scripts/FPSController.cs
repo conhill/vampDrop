@@ -86,11 +86,12 @@ namespace Vampire.Player
             ProcessLook();
             ProcessMovement();
 
-            // ESC to unlock cursor
-            if (Input.GetKeyDown(KeyCode.Escape))
+            // ESC — let EscapeMenuManager handle it when present; legacy unlock otherwise
+            if (Input.GetKeyDown(KeyCode.Escape)
+                && Vampire.EscapeMenuManager.Instance == null)
             {
                 Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
+                Cursor.visible   = true;
             }
         }
 

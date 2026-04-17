@@ -16,9 +16,16 @@ namespace Vampire
         public static ComicSceneManager Instance { get; private set; }
         
         /// <summary>
-        /// Set this before loading the comic scene to specify which comic config to play
+        /// Set this before loading the comic scene to specify which comic config to play.
         /// </summary>
         public static ComicSequenceConfig CurrentSequence { get; set; }
+
+        /// <summary>
+        /// Optional: override the next scene that loads after the comic completes.
+        /// Takes priority over <c>ComicSequenceConfig.nextSceneName</c>.
+        /// Cleared automatically after use.
+        /// </summary>
+        public static string NextSceneOverride { get; set; }
         
         [Header("Comic Sequence Configuration")]
         [Tooltip("Available comic sequence configs - add your comic configs here")]
@@ -233,12 +240,13 @@ namespace Vampire
         {
             foreach (var element in panel.elements)
             {
-                if (element.sprite == null)
+                // Allow elements that have at least a sprite OR dialogue text
+                if (element.sprite == null && string.IsNullOrEmpty(element.dialogueText))
                 {
-                    // Debug.LogWarning($"[ComicScene] [{activeSequence?.sequenceId}] Element '{element.elementName}' has no sprite!");
+                    // Debug.LogWarning($"[ComicScene] [{activeSequence?.sequenceId}] Element '{element.elementName}' has no sprite or text - skipping.");
                     continue;
                 }
-                
+
                 CreateElementInPanel(element, panelRT, panelWidth, screenHeight);
             }
         }
@@ -536,19 +544,21 @@ namespace Vampire
             // Create GameObject
             GameObject go = new GameObject(element.elementName);
             go.transform.SetParent(panelRT, false);
-            
+
             // Add RectTransform
             RectTransform rt = go.AddComponent<RectTransform>();
-            
+
             // Set layer-based sorting
             Canvas canvas = go.AddComponent<Canvas>();
             canvas.overrideSorting = true;
             canvas.sortingOrder = GetSortingOrder(element.layer);
-            
-            // Add Image component
+
+            // Add Image component (transparent placeholder when sprite is null)
             Image img = go.AddComponent<Image>();
             img.sprite = element.sprite;
             img.preserveAspect = true;
+            if (element.sprite == null)
+                img.color = Color.clear; // invisible backing rect for text-only elements
             
             // Declare variables used across cases
             Vector2 screenPos;
@@ -608,8 +618,38 @@ namespace Vampire
                     break;
             }
             
+            // Overlay dialogue text if set (e.g. blank_text sprite + text string)
+            if (!string.IsNullOrEmpty(element.dialogueText))
+            {
+                GameObject textGO = new GameObject("DialogueText");
+                textGO.transform.SetParent(go.transform, false);
+
+                RectTransform textRT = textGO.AddComponent<RectTransform>();
+                textRT.anchorMin = Vector2.zero;
+                textRT.anchorMax = Vector2.one;
+                textRT.pivot     = new Vector2(0.5f, 0.5f);
+                // Inset by padding: offsetMin = (left, bottom), offsetMax = (-right, -top)
+                textRT.offsetMin = new Vector2(element.textPadding.x, element.textPadding.w);
+                textRT.offsetMax = new Vector2(-element.textPadding.y, -element.textPadding.z);
+
+                // Sorting above the sprite
+                Canvas textCanvas = textGO.AddComponent<Canvas>();
+                textCanvas.overrideSorting = true;
+                textCanvas.sortingOrder    = GetSortingOrder(element.layer) + 1;
+
+                var tmp = textGO.AddComponent<TMPro.TextMeshProUGUI>();
+                tmp.text             = element.dialogueText;
+                tmp.color            = element.textColor;
+                tmp.fontSize         = element.fontSize;
+                tmp.alignment        = element.textAlignment;
+                tmp.enableWordWrapping = true;
+                tmp.overflowMode     = TMPro.TextOverflowModes.Truncate;
+
+                element.textComponent = tmp;
+            }
+
             // Store references
-            element.gameObject = go;
+            element.gameObject    = go;
             element.rectTransform = rt;
             element.imageComponent = img;
             activeElements.Add(element);
@@ -635,7 +675,11 @@ namespace Vampire
             {
                 case PanelAnimation.FadeIn:
                     element.animationStartColor = new Color(1, 1, 1, 0);
-                    element.imageComponent.color = element.animationStartColor;
+                    if (element.imageComponent != null && element.sprite != null)
+                        element.imageComponent.color = element.animationStartColor;
+                    if (element.textComponent != null)
+                        element.textComponent.color = new Color(
+                            element.textColor.r, element.textColor.g, element.textColor.b, 0);
                     break;
                     
                 case PanelAnimation.PanDown:
@@ -790,7 +834,14 @@ namespace Vampire
             switch (element.animation)
             {
                 case PanelAnimation.FadeIn:
-                    element.imageComponent.color = Color.Lerp(element.animationStartColor, element.animationEndColor, t);
+                    if (element.imageComponent != null && element.sprite != null)
+                        element.imageComponent.color = Color.Lerp(element.animationStartColor, element.animationEndColor, t);
+                    if (element.textComponent != null)
+                    {
+                        Color tc = element.textColor;
+                        tc.a = t;
+                        element.textComponent.color = tc;
+                    }
                     break;
                     
                 case PanelAnimation.PanDown:
@@ -908,7 +959,12 @@ namespace Vampire
             
             comicComplete = true;
             
-            string nextScene = activeSequence != null ? activeSequence.nextSceneName : "FPS_Collect";
+            // NextSceneOverride lets callers (e.g. BallDropSceneEntry) redirect to DropPuzzle
+            // without having to modify the ScriptableObject asset.
+            string nextScene = !string.IsNullOrEmpty(NextSceneOverride)
+                ? NextSceneOverride
+                : (activeSequence != null ? activeSequence.nextSceneName : "FPS_Collect");
+            NextSceneOverride = null; // consume the override
             // Debug.Log($"[ComicScene] '{activeSequence?.sequenceName}' complete! Loading scene: {nextScene}");
             
             // Stop music

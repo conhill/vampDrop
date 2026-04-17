@@ -1,0 +1,72 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" class="root">
+        <Style src="project://database/Assets/UI/GameUI.uss?fileID=7433441132597879392&amp;guid=18d0755650c6a9c4d8affec780a97176&amp;type=3#GameUI"/>
+        <ui:VisualElement name="top-bar" class="top-bar panel" style="top: 13px; right: 765px; left: 735px;">
+            <ui:VisualElement name="day-night-icon" class="day-night-icon" style="background-image: url(&quot;project://database/Assets/images/sun.png?fileID=2800000&amp;guid=85774915c4105e34897e5fa72566e8f6&amp;type=3#sun&quot;);"/>
+            <ui:Label name="day-night-phase" text="DAY" class="day-label"/>
+            <ui:VisualElement class="time-container">
+                <ui:VisualElement class="time-bar-bg">
+                    <ui:VisualElement name="time-bar-fill" class="time-bar-fill"/>
+                </ui:VisualElement>
+                <ui:Label name="day-night-timer" text="01:00" class="time-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="left-panel" class="left-panel" style="top: 384px; left: 17px; height: 668px; width: 298px;">
+            <ui:VisualElement class="panel quests-panel">
+                <ui:Label text="QUESTS" class="panel-title" style="font-size: 18px;"/>
+                <ui:Label name="quest-none" text="No active quest" class="quest-none" style="font-size: 20px;"/>
+                <ui:VisualElement class="quest-item">
+                    <ui:Label name="quest-title" text="" class="quest-title-label"/>
+                    <ui:Label name="quest-description" text="" class="quest-desc"/>
+                    <ui:Label name="quest-progress-text" text="" class="quest-progress"/>
+                    <ui:VisualElement class="quest-bar-bg">
+                        <ui:VisualElement name="quest-progress-fill" class="quest-bar-fill"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="panel resource-panel" style="bottom: 0; position: absolute; width: 107px;">
+                <ui:VisualElement class="resource-icon" style="background-image: url(&quot;project://database/Assets/images/Rice.png?fileID=2800000&amp;guid=b096e239dd25bdf4baeeb7696b181250&amp;type=3#Rice&quot;); width: 30px; height: 30px;"/>
+                <ui:Label name="rice-count" text="0" class="resource-text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="top-right" class="top-right">
+            <ui:VisualElement class="panel currency-panel">
+                <ui:VisualElement style="flex-direction: row; align-items: center;">
+                    <ui:VisualElement class="currency-icon" style="background-image: url(&quot;project://database/Assets/images/skrilla.png?fileID=2800000&amp;guid=59052b325c8e60d4ebafe072182b1709&amp;type=3#skrilla&quot;); width: 65px; height: 65px; background-size: 120% 120%;"/>
+                    <ui:Label name="currency-amount" text="$0" class="currency"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="panel riceball-panel">
+                <ui:Label text="RICE BALLS" class="panel-title"/>
+                <ui:Label name="rice-ball-total" text="0" class="riceball-total"/>
+                <ui:VisualElement class="riceball-grid">
+                    <ui:VisualElement class="riceball-row">
+                        <ui:Label text="Fine" class="quality-label fine"/>
+                        <ui:Label name="rice-ball-fine" text="0" class="quality-count"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="riceball-row">
+                        <ui:Label text="Good" class="quality-label good"/>
+                        <ui:Label name="rice-ball-good" text="0" class="quality-count"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="riceball-row">
+                        <ui:Label text="Great" class="quality-label great"/>
+                        <ui:Label name="rice-ball-great" text="0" class="quality-count"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="riceball-row">
+                        <ui:Label text="Excellent" class="quality-label excellent"/>
+                        <ui:Label name="rice-ball-excellent" text="0" class="quality-count"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="panel helpers-panel">
+                <ui:Label text="HELPERS" class="panel-title"/>
+                <ui:VisualElement class="helper-summary">
+                    <ui:Label name="helper-deployed" text="0" class="helper-summary-label"/>
+                    <ui:Label text=" / " class="helper-summary-label"/>
+                    <ui:Label name="helper-max" text="0" class="helper-summary-label"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="helper-list" class="helper-list"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

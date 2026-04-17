@@ -158,11 +158,13 @@ namespace Vampire.DropPuzzle
             if (prefab != null)
             {
                 ReplaceWithEnhancement(marker, prefab, label);
-                Debug.Log($"[PuzzleEnhancer] {marker.name} → {label}");
                 return true;
             }
 
+            // No enhancement — remove the placeholder
+            string name = marker.name;
             DestroyImmediate(marker.gameObject);
+            Debug.Log($"[PuzzleEnhancer] {name} → no enhancement (roll missed or prefab unassigned)");
             return false;
         }
 
@@ -177,28 +179,31 @@ namespace Vampire.DropPuzzle
 
         private void ReplaceWithEnhancement(EnhancementMarker marker, GameObject replacementPrefab, string enhancementType)
         {
-            // Store original transform data
+            // Cache name before destroying
+            string markerName = marker.name;
+
             Vector3 position = marker.transform.position;
             Quaternion rotation = marker.transform.rotation;
             Vector3 scale = marker.transform.localScale;
             Transform parent = marker.transform.parent;
-            
+            bool copyTagsAndLayers = marker.CopyTagsAndLayers;
+            string markerTag = marker.gameObject.tag;
+            int markerLayer = marker.gameObject.layer;
+
             // Create the enhanced zone
             GameObject enhanced = Instantiate(replacementPrefab, position, rotation, parent);
             enhanced.transform.localScale = scale;
-            enhanced.name = $"{marker.name}_{enhancementType.Replace(" ", "")}";
-            
-            // Copy any special properties from the marker
-            if (marker.CopyTagsAndLayers)
+            enhanced.name = $"{markerName}_{enhancementType.Replace(" ", "")}";
+
+            if (copyTagsAndLayers)
             {
-                enhanced.tag = marker.gameObject.tag;
-                enhanced.layer = marker.gameObject.layer;
+                enhanced.tag = markerTag;
+                enhanced.layer = markerLayer;
             }
-            
-            // Destroy the original marker
+
             DestroyImmediate(marker.gameObject);
-            
-            Debug.Log($"[PuzzleEnhancer] ✨ Enhanced {marker.name} → {enhancementType}");
+
+            Debug.Log($"[PuzzleEnhancer] Enhanced {markerName} → {enhancementType}");
         }
 
         private UserProgression GetUserStats()

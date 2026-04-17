@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DropPuzzle.unity
     guid: 5c3f4fecb3ed7284e8271daef4b89bca
+  - enabled: 1
+    path: Assets/Scenes/Comic.unity
+    guid: 709febdca40f9014abc1dd6bfb3e7f54
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

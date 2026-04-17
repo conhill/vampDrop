@@ -875,6 +875,7 @@ MonoBehaviour:
   warningText: {fileID: 515129934}
   timeDisplay: {fileID: 1435073015}
   fpsSceneName: FPS_Collect
+  afterFirstDropComic: {fileID: 0}
 --- !u!1 &613338708
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,7 +1051,7 @@ MonoBehaviour:
   UsePlayerLevel: 1
   ManualPuzzleIndex: 0
   BackgroundPrefab: {fileID: 0}
-  BackgroundSprite: {fileID: 0}
+  BackgroundSprite: {fileID: 21300000, guid: 855d93821fe951742af3fe78b2197840, type: 3}
   BackgroundPosition: {x: -2, y: 1, z: -50}
   BackgroundScale: {x: 50, y: 50, z: 1}
   EnableDynamicEnhancement: 1
@@ -1073,8 +1074,6 @@ MonoBehaviour:
   Multiplier2xPrefab: {fileID: 4446269053292882638, guid: 93218a7ebbfeeb243864f1a42acbd910, type: 3}
   Multiplier3xPrefab: {fileID: 0}
   BonusZonePrefab: {fileID: 0}
-  RiceFor2xZones: 1000
-  RiceFor3xZones: 5000
   HelpersForBonusZones: 3
 --- !u!1 &766885287
 GameObject:

@@ -32,6 +32,11 @@ MonoBehaviour:
       animationDuration: 4
       panDistance: 0
       zoomScale: 0
+      dialogueText: 
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
     soundEffect: {fileID: 0}
     music: {fileID: 0}
     musicVolume: 0
@@ -52,6 +57,11 @@ MonoBehaviour:
       animationDuration: 0
       panDistance: 0
       zoomScale: 0
+      dialogueText: 
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
     - elementName: Outside
       sprite: {fileID: 21300000, guid: 482e4dd8bf36f904292a681109a964c3, type: 3}
       layer: 2
@@ -64,6 +74,28 @@ MonoBehaviour:
       animationDuration: 3
       panDistance: 0
       zoomScale: 0
+      dialogueText: 
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
+    - elementName: Outside
+      sprite: {fileID: 21300000, guid: 4c67423bfb1d20b419e1e01c89a040e9, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.4, y: 0.6}
+      scale: 1
+      animation: 1
+      appearDelay: 3
+      animationDuration: 3
+      panDistance: 0
+      zoomScale: 0
+      dialogueText: Knox! There you are!
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
     - elementName: Outside
       sprite: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
       layer: 2
@@ -76,6 +108,28 @@ MonoBehaviour:
       animationDuration: 3
       panDistance: 0
       zoomScale: 0
+      dialogueText: 
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
+    - elementName: Outside
+      sprite: {fileID: 21300000, guid: 4c67423bfb1d20b419e1e01c89a040e9, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.4, y: 0.6}
+      scale: 1
+      animation: 1
+      appearDelay: 3
+      animationDuration: 3
+      panDistance: 0
+      zoomScale: 0
+      dialogueText: Get back here!
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
     - elementName: Outside
       sprite: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
       layer: 2
@@ -88,6 +142,28 @@ MonoBehaviour:
       animationDuration: 3
       panDistance: 0
       zoomScale: 0
+      dialogueText: That damn creature took my rice!
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
+    - elementName: Outside
+      sprite: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
+      layer: 2
+      sizeMode: 1
+      customSize: {x: 500, y: 500}
+      position: {x: 0.4, y: 0.6}
+      scale: 1
+      animation: 1
+      appearDelay: 3
+      animationDuration: 3
+      panDistance: 0
+      zoomScale: 0
+      dialogueText: Send some rice to me and I'll pay you!
+      fontSize: 28
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      textAlignment: 514
+      textPadding: {x: 24, y: 24, z: 16, w: 16}
     soundEffect: {fileID: 0}
     music: {fileID: 0}
     musicVolume: 0

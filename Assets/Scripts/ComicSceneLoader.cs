@@ -22,7 +22,7 @@ namespace Vampire
             
             ComicSceneManager.CurrentSequence = comicConfig;
             Debug.Log($"[ComicSceneLoader] Loading comic '{comicConfig.sequenceName}' → Will return to '{comicConfig.nextSceneName}'");
-            SceneManager.LoadScene("ComicScene");
+            SceneManager.LoadScene("Comic");
         }
     }
 }

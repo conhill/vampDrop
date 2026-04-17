@@ -20,6 +20,7 @@ namespace Vampire.DropPuzzle
         
         private EntityQuery ballQuery;
         private EntityManager entityManager;
+        private bool ballQueryCreated = false;
 
         private Matrix4x4[] matrixCache;
         
@@ -33,6 +34,7 @@ namespace Vampire.DropPuzzle
                 typeof(LocalTransform),
                 typeof(RiceBallTag)
             );
+            ballQueryCreated = true;
             
             if (BallMesh == null)
             {
@@ -89,10 +91,8 @@ namespace Vampire.DropPuzzle
         
         private void OnDestroy()
         {
-            if (entityManager != null && ballQuery != null)
-            {
+            if (ballQueryCreated)
                 ballQuery.Dispose();
-            }
         }
     }
 }

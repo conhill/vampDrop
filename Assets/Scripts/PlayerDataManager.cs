@@ -12,6 +12,9 @@ namespace Vampire.DropPuzzle
     {
         public static PlayerDataManager Instance { get; private set; }
         
+        [Header("Debug")]
+        public bool debugFreeUpgrades = false; // Skip currency cost on all purchases
+
         [Header("Currency")]
         public int TotalCurrency = 0; // Earned across all runs
         public int CurrentRunCurrency = 0; // This session only
@@ -198,12 +201,14 @@ namespace Vampire.DropPuzzle
         /// </summary>
         public bool SpendCurrency(int amount, string purchaseDescription)
         {
+            if (debugFreeUpgrades) return true;
+
             if (TotalCurrency < amount)
             {
                 // Debug.LogWarning($"[PlayerData] Not enough currency! Need {amount}, have {TotalCurrency}");
                 return false;
             }
-            
+
             TotalCurrency -= amount;
             // Debug.Log($"[PlayerData] Spent {amount} on: {purchaseDescription} | Remaining: {TotalCurrency}");
             SavePlayerData();

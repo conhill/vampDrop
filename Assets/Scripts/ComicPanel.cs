@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using TMPro;
 
 namespace Vampire
 {
@@ -82,14 +83,33 @@ namespace Vampire
         [Header("Animation Settings")]
         [Tooltip("For pan animations: how far to pan (screen heights/widths)")]
         public float panDistance = 0.3f;
-        
+
         [Tooltip("For zoom animations: start/end scale")]
         public float zoomScale = 0.5f;
-        
+
+        [Header("Dialogue Text (Optional)")]
+        [Tooltip("Text rendered over this element. Assign blank_text as the sprite for a speech-bubble background.")]
+        [TextArea(2, 5)]
+        public string dialogueText = "";
+
+        [Tooltip("Font size for dialogue text")]
+        [Range(8, 96)]
+        public int fontSize = 28;
+
+        [Tooltip("Text colour")]
+        public Color textColor = Color.black;
+
+        [Tooltip("Text alignment inside the element")]
+        public TextAlignmentOptions textAlignment = TextAlignmentOptions.Center;
+
+        [Tooltip("Inner padding in pixels: X=left  Y=right  Z=top  W=bottom")]
+        public Vector4 textPadding = new Vector4(24, 24, 16, 16);
+
         // Runtime data
         [NonSerialized] public GameObject gameObject;
         [NonSerialized] public RectTransform rectTransform;
         [NonSerialized] public UnityEngine.UI.Image imageComponent;
+        [NonSerialized] public TextMeshProUGUI textComponent;
         [NonSerialized] public float animationStartTime;
         [NonSerialized] public bool isAnimating;
         [NonSerialized] public Vector2 animationStartPos;
