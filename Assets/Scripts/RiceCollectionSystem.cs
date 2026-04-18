@@ -24,110 +24,116 @@ namespace Vampire.Rice
     [UpdateBefore(typeof(RiceCollectionSystem))]
     public partial struct RiceHoverHighlightSystem : ISystem
     {
-        private Entity    currentHoveredEntity;
+        private Entity currentHoveredEntity;
         private EntityQuery playerQuery;
-
-        // Unmanaged cached values (safe in ISystem struct)
-        private float     _cachedPickupRadius;
-        private float     _cachedBaseScale;
-
-        // Persistent result buffer — no TempJob alloc every frame
-        private NativeArray<RiceHoverResult> _resultBuf;
-
-        // Mouse-move guard — skip the job when nothing has changed
-        private float2    _lastMousePos;
-        private float3    _lastPlayerPos;
-
+        
+        /// <summary>
+        /// Public flag for UI to check if rice is being hovered
+        /// </summary>
         public static bool IsHoveringRice { get; private set; }
-
+        
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Player.PlayerData>();
-            playerQuery           = state.GetEntityQuery(ComponentType.ReadOnly<Player.PlayerData>());
-            currentHoveredEntity  = Entity.Null;
-            _resultBuf            = new NativeArray<RiceHoverResult>(1, Allocator.Persistent);
-            _lastMousePos         = new float2(float.MinValue, float.MinValue);
+            playerQuery = state.GetEntityQuery(ComponentType.ReadOnly<Player.PlayerData>());
+            currentHoveredEntity = Entity.Null;
         }
-
-        public void OnDestroy(ref SystemState state)
-        {
-            if (_resultBuf.IsCreated) _resultBuf.Dispose();
-        }
-
+        
         public void OnUpdate(ref SystemState state)
         {
             var camera = Camera.main;
-            if (camera == null) { IsHoveringRice = false; return; }
-
-            if (playerQuery.CalculateEntityCount() != 1) { IsHoveringRice = false; return; }
-
-            Entity playerEntity    = SystemAPI.GetSingletonEntity<Player.PlayerData>();
-            var    playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
-
-            // Refresh pickup radius and base scale once per second instead of every frame
-            if (DropPuzzle.PlayerDataManager.Instance != null)
-                _cachedPickupRadius = DropPuzzle.PlayerDataManager.Instance.FPSCollector.pickupRadius;
-            else if (_cachedPickupRadius == 0f)
-                _cachedPickupRadius = 1.5f;
-
-            if (RiceRenderingConfig.Instance != null)
-                _cachedBaseScale = RiceRenderingConfig.Instance.Scale;
-            else if (_cachedBaseScale == 0f)
-                _cachedBaseScale = 0.1f;
-
-            // ── Skip job if mouse and player haven't moved ────────────────────
-            float2 mousePos = new float2(Input.mousePosition.x, Input.mousePosition.y);
-            bool mouseMoved  = math.any(mousePos != _lastMousePos);
-            bool playerMoved = math.any(playerTransform.Position != _lastPlayerPos);
-            if (!mouseMoved && !playerMoved) return;
-
-            _lastMousePos   = mousePos;
-            _lastPlayerPos  = playerTransform.Position;
-
-            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-
-            _resultBuf[0] = new RiceHoverResult { Entity = Entity.Null, Distance = float.MaxValue };
-
-            new FindHoveredRiceJob
+            if (camera == null)
             {
-                RayOrigin      = ray.origin,
-                RayDirection   = ray.direction,
+                IsHoveringRice = false;
+                return;
+            }
+            
+            // Check player entity count BEFORE trying to access singleton
+            int playerCount = playerQuery.CalculateEntityCount();
+            if (playerCount != 1)
+            {
+                IsHoveringRice = false;
+                return;
+            }
+            
+            // Get player data
+            Entity playerEntity = SystemAPI.GetSingletonEntity<Player.PlayerData>();
+            var playerTransform = state.EntityManager.GetComponentData<LocalTransform>(playerEntity);
+            
+            // Get pickup radius from upgrades
+            float pickupRadius = 1.5f;
+            if (DropPuzzle.PlayerDataManager.Instance != null)
+            {
+                pickupRadius = DropPuzzle.PlayerDataManager.Instance.FPSCollector.pickupRadius;
+            }
+            
+            // Raycast from mouse position
+            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            
+            // Use a shared container to find the closest rice
+            var closestResult = new NativeReference<RiceHoverResult>(Allocator.TempJob);
+            closestResult.Value = new RiceHoverResult 
+            { 
+                Entity = Entity.Null, 
+                Distance = float.MaxValue 
+            };
+            
+            // Job to find closest rice under mouse (runs on main thread due to NativeReference)
+            var findJob = new FindHoveredRiceJob
+            {
+                RayOrigin = ray.origin,
+                RayDirection = ray.direction,
                 PlayerPosition = playerTransform.Position,
-                PickupRadius   = _cachedPickupRadius,
-                ClosestResult  = _resultBuf
-            }.Run();
+                PickupRadius = pickupRadius,
+                ClosestResult = closestResult
+            };
+            
+            findJob.Run(); // Run on main thread (Burst-compiled, fast)
+            
+            Entity newHoveredEntity = closestResult.Value.Entity;
+            closestResult.Dispose();
+            
+            // Get the base rice scale from config (so we never reset to wrong value)
+            float baseScale = RiceRenderingConfig.Instance != null ? RiceRenderingConfig.Instance.Scale : 0.1f;
 
-            Entity newHoveredEntity = _resultBuf[0].Entity;
-
-            // Unhighlight previous entity
+            // Unhighlight previous entity (toggles IEnableableComponent - no structural change!)
             if (currentHoveredEntity != Entity.Null && currentHoveredEntity != newHoveredEntity)
             {
-                if (state.EntityManager.Exists(currentHoveredEntity) &&
-                    state.EntityManager.HasComponent<RiceHighlighted>(currentHoveredEntity))
+                if (state.EntityManager.Exists(currentHoveredEntity))
                 {
-                    state.EntityManager.SetComponentEnabled<RiceHighlighted>(currentHoveredEntity, false);
-                    var t = state.EntityManager.GetComponentData<LocalTransform>(currentHoveredEntity);
-                    t.Scale = _cachedBaseScale;
-                    state.EntityManager.SetComponentData(currentHoveredEntity, t);
+                    if (state.EntityManager.HasComponent<RiceHighlighted>(currentHoveredEntity))
+                    {
+                        state.EntityManager.SetComponentEnabled<RiceHighlighted>(currentHoveredEntity, false);
+                        
+                        // Reset scale back to the configured base scale, NOT 1f
+                        var transform = state.EntityManager.GetComponentData<LocalTransform>(currentHoveredEntity);
+                        transform.Scale = baseScale;
+                        state.EntityManager.SetComponentData(currentHoveredEntity, transform);
+                    }
                 }
             }
-
+            
             // Highlight new entity
             if (newHoveredEntity != Entity.Null && newHoveredEntity != currentHoveredEntity)
             {
                 if (state.EntityManager.Exists(newHoveredEntity))
                 {
+                    // Add component if it doesn't exist, then enable it
                     if (!state.EntityManager.HasComponent<RiceHighlighted>(newHoveredEntity))
+                    {
                         state.EntityManager.AddComponent<RiceHighlighted>(newHoveredEntity);
+                    }
                     state.EntityManager.SetComponentEnabled<RiceHighlighted>(newHoveredEntity, true);
-                    var t = state.EntityManager.GetComponentData<LocalTransform>(newHoveredEntity);
-                    t.Scale = _cachedBaseScale * 1.3f;
-                    state.EntityManager.SetComponentData(newHoveredEntity, t);
+                    
+                    // Scale up relative to base scale
+                    var transform = state.EntityManager.GetComponentData<LocalTransform>(newHoveredEntity);
+                    transform.Scale = baseScale * 1.3f; // 30% larger when hovered
+                    state.EntityManager.SetComponentData(newHoveredEntity, transform);
                 }
             }
-
+            
             currentHoveredEntity = newHoveredEntity;
-            IsHoveringRice       = newHoveredEntity != Entity.Null;
+            IsHoveringRice = (newHoveredEntity != Entity.Null);
         }
     }
     
@@ -152,27 +158,37 @@ namespace Vampire.Rice
         [ReadOnly] public float3 RayDirection;
         [ReadOnly] public float3 PlayerPosition;
         [ReadOnly] public float PickupRadius;
-
-        // NativeArray[1] reused from system — no per-frame alloc
-        public NativeArray<RiceHoverResult> ClosestResult;
-
+        
+        public NativeReference<RiceHoverResult> ClosestResult;
+        
         public void Execute(Entity entity, in RiceEntity rice, in LocalTransform transform)
         {
+            // Check if rice is within pickup range
             float distToPlayer = math.distance(PlayerPosition, transform.Position);
             if (distToPlayer > PickupRadius) return;
-
+            
+            // Optimized ray-sphere intersection
             float3 toSphere = transform.Position - RayOrigin;
-            float  t        = math.dot(toSphere, RayDirection);
-            if (t < 0) return;
-
-            float3 closestPoint  = RayOrigin + RayDirection * t;
-            float  distanceToRay = math.distance(closestPoint, transform.Position);
-
-            if (distanceToRay < 0.15f)
+            float t = math.dot(toSphere, RayDirection);
+            
+            if (t < 0) return; // Behind camera
+            
+            float3 closestPoint = RayOrigin + RayDirection * t;
+            float distanceToRay = math.distance(closestPoint, transform.Position);
+            
+            float hoverRadius = 0.15f;
+            if (distanceToRay < hoverRadius)
             {
-                var current = ClosestResult[0];
+                // Thread-safe comparison and update
+                var current = ClosestResult.Value;
                 if (t < current.Distance)
-                    ClosestResult[0] = new RiceHoverResult { Entity = entity, Distance = t };
+                {
+                    ClosestResult.Value = new RiceHoverResult 
+                    { 
+                        Entity = entity, 
+                        Distance = t 
+                    };
+                }
             }
         }
     }

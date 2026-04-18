@@ -32,13 +32,7 @@ namespace Vampire.DropPuzzle
         
         [Header("Settings")]
         public string fpsSceneName = "FPS_Collect";
-
-        [Header("Comics")]
-        [Tooltip("Comic shown after completing the first (tutorial) drop. nextSceneName should be FPS_Collect.")]
-        public Vampire.ComicSequenceConfig afterFirstDropComic;
-
-        private static bool _afterFirstDropComicShown = false;
-
+        
         private BallDropCompletionManager completionManager;
         private DayNightCycleManager cycleManager;
         private PlayerDataManager playerData => PlayerDataManager.Instance;
@@ -72,15 +66,12 @@ namespace Vampire.DropPuzzle
                 // Debug.Log($"[BallDropUI] Starting currency: ${startingCurrency / 100f:F2}");
             }
             
-            // Setup puzzle (uses TutorialCompleted flag to pick tutorial vs normal)
-            if (PuzzleManager.Instance != null)
-                PuzzleManager.Instance.SetupPuzzleForCurrentScene();
-            else if (TutorialManager.Instance != null)
-                TutorialManager.Instance.SetupTutorialPuzzle();
-
-            // Notify tutorial manager that we visited ball drop
+            // Setup tutorial puzzle if in tutorial mode
             if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.SetupTutorialPuzzle();
                 TutorialManager.Instance.NotifyBallDropVisit();
+            }
             
             // Find managers
             completionManager = FindObjectOfType<BallDropCompletionManager>();
@@ -143,12 +134,9 @@ namespace Vampire.DropPuzzle
             //    No UI polling needed until completion fires via event.
             //    Only handle input and the once-per-second time display. ──────
 
-            // ESC is handled by EscapeMenuManager when it exists.
-            // Fall back to direct return only if there is no ESC manager.
+            // Escape always works
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (Vampire.EscapeMenuManager.Instance != null)
-                    return; // EscapeMenuManager.Update() owns ESC
                 GoBackToFPS();
                 return;
             }
@@ -191,15 +179,26 @@ namespace Vampire.DropPuzzle
             
             var entityManager = world.EntityManager;
             
-            // HIDE FPS rice entities by adding Disabled — the only flag the DOTS renderer respects.
-            // RiceHidden was a custom tag that nothing checked for visibility, so it had no effect.
-            var riceQuery = entityManager.CreateEntityQuery(new Unity.Entities.EntityQueryDesc
+            // HIDE FPS rice entities (only RiceEntity, NOT riceballs)
+            var riceQuery = entityManager.CreateEntityQuery(
+                Unity.Entities.ComponentType.ReadOnly<Vampire.Rice.RiceEntity>(),
+                Unity.Entities.ComponentType.Exclude<Vampire.Rice.RiceHidden>());
+            var riceEntities = riceQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+            
+            int hidden = riceEntities.Length;
+            if (hidden > 0)
             {
-                All     = new[] { Unity.Entities.ComponentType.ReadOnly<Vampire.Rice.RiceEntity>() },
-                Options = Unity.Entities.EntityQueryOptions.Default // exclude already-Disabled
-            });
-            if (!riceQuery.IsEmpty)
-                entityManager.AddComponent<Unity.Entities.Disabled>(riceQuery);
+                foreach (var entity in riceEntities)
+                {
+                    if (!entityManager.HasComponent<Vampire.Rice.RiceHidden>(entity))
+                    {
+                        entityManager.AddComponent<Vampire.Rice.RiceHidden>(entity);
+                    }
+                }
+                // Debug.Log($"[BallDropUI] 👁️‍🗨️ Hidden {hidden} FPS rice entities (not destroyed)");
+            }
+            
+            riceEntities.Dispose();
             riceQuery.Dispose();
             
             // DESTROY riceball entities from ball drop (they shouldn't persist)
@@ -242,14 +241,6 @@ namespace Vampire.DropPuzzle
             if (TutorialManager.Instance != null)
             {
                 TutorialManager.Instance.NotifyRiceBallsDropped();
-            }
-
-            // Mark tutorial complete after first successful drop
-            if (playerData != null && !playerData.TutorialCompleted)
-            {
-                playerData.TutorialCompleted = true;
-                playerData.SavePlayerData();
-                Debug.Log("[BallDropUI] Tutorial marked complete — puzzle 2+ will load on next visit");
             }
             
             if (completionPanel == null)
@@ -329,27 +320,17 @@ namespace Vampire.DropPuzzle
         /// </summary>
         private void GoBackToFPS()
         {
+            // Debug.Log($"[BallDropUI] Loading scene: {fpsSceneName}");
+            
             // Resume day/night cycle when leaving completion screen
             if (cycleManager != null)
+            {
                 cycleManager.Resume();
-
+            }
+            
             // Unhide rice entities before returning to FPS scene
             UnhideRiceEntities();
-
-            // Comic #3: play after the first (tutorial) drop, once only
-            bool showAfterDropComic = !_afterFirstDropComicShown
-                && afterFirstDropComic != null
-                && playerData != null
-                && playerData.TutorialCompleted;
-
-            if (showAfterDropComic)
-            {
-                _afterFirstDropComicShown = true;
-                // Comic's nextSceneName must be "FPS_Collect" — set in the Inspector
-                Vampire.ComicSceneLoader.LoadComic(afterFirstDropComic);
-                return;
-            }
-
+            
             SceneManager.LoadScene(fpsSceneName);
         }
         
@@ -367,14 +348,30 @@ namespace Vampire.DropPuzzle
             
             var entityManager = world.EntityManager;
             
-            // Re-enable FPS rice entities (were disabled via Unity.Entities.Disabled)
-            var query = entityManager.CreateEntityQuery(new Unity.Entities.EntityQueryDesc
+            // Only unhide FPS rice entities (RiceEntity with RiceHidden)
+            var query = entityManager.CreateEntityQuery(
+                Unity.Entities.ComponentType.ReadOnly<Vampire.Rice.RiceEntity>(),
+                Unity.Entities.ComponentType.ReadOnly<Vampire.Rice.RiceHidden>());
+            var entities = query.ToEntityArray(Unity.Collections.Allocator.Temp);
+            
+            int unhidden = entities.Length;
+            if (unhidden > 0)
             {
-                All     = new[] { Unity.Entities.ComponentType.ReadOnly<Vampire.Rice.RiceEntity>() },
-                Options = Unity.Entities.EntityQueryOptions.IncludeDisabledEntities
-            });
-            if (!query.IsEmpty)
-                entityManager.RemoveComponent<Unity.Entities.Disabled>(query);
+                foreach (var entity in entities)
+                {
+                    if (entityManager.Exists(entity))
+                    {
+                        entityManager.RemoveComponent<Vampire.Rice.RiceHidden>(entity);
+                    }
+                }
+                // Debug.Log($"[BallDropUI] 👁️ Unhidden {unhidden} FPS rice entities (ready to collect)");
+            }
+            else
+            {
+                // Debug.LogWarning("[BallDropUI] No hidden rice entities found to unhide!");
+            }
+            
+            entities.Dispose();
             query.Dispose();
         }
         

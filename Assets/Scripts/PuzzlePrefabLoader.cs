@@ -64,16 +64,13 @@ namespace Vampire.DropPuzzle
         /// </summary>
         private bool IsTutorialComplete()
         {
-            // TutorialCompleted is set to true by PuzzleManager after the first drop,
-            // while tutorialActive stays true until the money quest (step 7) finishes.
-            // Check the persisted flag first so post-tutorial puzzles load on the second visit.
-            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.TutorialCompleted)
-                return true;
-
             if (TutorialManager.Instance != null)
                 return !TutorialManager.Instance.tutorialActive;
 
-            return true;
+            if (PlayerDataManager.Instance != null)
+                return PlayerDataManager.Instance.TutorialCompleted;
+
+            return true; // No manager present — assume complete
         }
 
         /// <summary>
@@ -94,45 +91,22 @@ namespace Vampire.DropPuzzle
         /// </summary>
         private int SelectPuzzleIndex()
         {
-            // --- Diagnostic dump ---
-            var pdm = PlayerDataManager.Instance;
-            var tm  = TutorialManager.Instance;
-            string prefabList = PuzzlePrefabs == null ? "null" :
-                string.Join(", ", System.Array.ConvertAll(PuzzlePrefabs,
-                    p => p != null ? p.name : "NULL"));
-
-            Debug.Log(
-                $"[PuzzlePrefabLoader] === Puzzle Selection ===\n" +
-                $"  PuzzlePrefabs ({(PuzzlePrefabs?.Length ?? 0)}): [{prefabList}]\n" +
-                $"  UsePlayerLevel: {UsePlayerLevel}\n" +
-                $"  PlayerDataManager.TutorialCompleted: {(pdm != null ? pdm.TutorialCompleted.ToString() : "PDM missing")}\n" +
-                $"  TutorialManager.tutorialActive: {(tm != null ? tm.tutorialActive.ToString() : "TM missing")}\n" +
-                $"  IsTutorialComplete(): {IsTutorialComplete()}\n" +
-                $"  TotalRunsCompleted: {(pdm != null ? pdm.TotalRunsCompleted.ToString() : "PDM missing")}\n" +
-                $"  IsFirstPostTutorialRun(): {IsFirstPostTutorialRun()}"
-            );
-            // -----------------------
-
-            if (PuzzlePrefabs == null || PuzzlePrefabs.Length == 0)
-            {
-                Debug.LogError("[PuzzlePrefabLoader] No puzzle prefabs assigned!");
-                return 0;
-            }
+            if (PuzzlePrefabs == null || PuzzlePrefabs.Length == 0) return 0;
 
             if (!IsTutorialComplete())
             {
-                Debug.Log("[PuzzlePrefabLoader] REASON: Tutorial not complete → loading tutorial puzzle (index 0)");
+                Debug.Log("[PuzzlePrefabLoader] Tutorial active — loading tutorial puzzle (index 0)");
                 return 0;
             }
 
             if (PuzzlePrefabs.Length <= 1)
             {
-                Debug.LogWarning("[PuzzlePrefabLoader] REASON: Only 1 prefab assigned — add puzzle2+ to PuzzlePrefabs array");
+                Debug.LogWarning("[PuzzlePrefabLoader] Only one puzzle prefab assigned — add more to PuzzlePrefabs array for post-tutorial variety");
                 return 0;
             }
 
             int chosen = Random.Range(1, PuzzlePrefabs.Length);
-            Debug.Log($"[PuzzlePrefabLoader] REASON: Post-tutorial, {PuzzlePrefabs.Length} prefabs available → randomly chose index {chosen} ({PuzzlePrefabs[chosen]?.name ?? "NULL"})");
+            Debug.Log($"[PuzzlePrefabLoader] Post-tutorial: randomly selected puzzle index {chosen} ({PuzzlePrefabs[chosen]?.name})");
             return chosen;
         }
 

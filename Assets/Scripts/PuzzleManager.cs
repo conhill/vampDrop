@@ -17,6 +17,8 @@ namespace Vampire.DropPuzzle
         [Tooltip("Level 3 puzzle (puzzle_level3.json)")]  
         public TextAsset Level3Puzzle;
         
+        private PlayerDataManager playerData;
+        
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -24,30 +26,36 @@ namespace Vampire.DropPuzzle
                 Destroy(gameObject);
                 return;
             }
-
+            
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-
+        
+        private void Start()
+        {
+            playerData = PlayerDataManager.Instance;
+        }
+        
         /// <summary>
         /// Get the appropriate puzzle based on player progress
         /// </summary>
         public TextAsset GetCurrentPuzzle()
         {
-            var data = PlayerDataManager.Instance;
-            if (data == null)
+            if (playerData == null)
             {
                 // Debug.LogWarning("[PuzzleManager] No PlayerDataManager found, using tutorial puzzle");
                 return TutorialPuzzle;
             }
-
-            if (!data.TutorialCompleted)
+            
+            // Tutorial logic: Only play tutorial once
+            if (!playerData.TutorialCompleted)
             {
                 // Debug.Log("[PuzzleManager] Tutorial not completed - loading tutorial puzzle");
                 return TutorialPuzzle;
             }
-
-            if (data.TotalRunsCompleted < 10)
+            
+            // Post-tutorial: Load level 2 (or level 3 based on some criteria)
+            if (playerData.TotalRunsCompleted < 10) // Example: Level 2 for first 10 runs
             {
                 // Debug.Log("[PuzzleManager] Loading Level 2 puzzle (post-tutorial)");
                 return Level2Puzzle;
@@ -55,10 +63,10 @@ namespace Vampire.DropPuzzle
             else
             {
                 // Debug.Log("[PuzzleManager] Loading Level 3 puzzle (advanced)");
-                return Level3Puzzle ?? Level2Puzzle;
+                return Level3Puzzle ?? Level2Puzzle; // Fallback to Level 2 if Level 3 missing
             }
         }
-
+        
         /// <summary>
         /// Setup puzzle in current scene based on player progress
         /// </summary>
@@ -70,23 +78,23 @@ namespace Vampire.DropPuzzle
                 // Debug.LogWarning("[PuzzleManager] No GridPuzzleLoader found in scene!");
                 return;
             }
-
+            
             TextAsset targetPuzzle = GetCurrentPuzzle();
             if (targetPuzzle == null)
             {
                 // Debug.LogError("[PuzzleManager] No puzzle assigned for current progress level!");
                 return;
             }
-
+            
+            // Debug.Log($"[PuzzleManager] Setting puzzle: {targetPuzzle.name}");
             gridLoader.PuzzleJsonFile = targetPuzzle;
             gridLoader.LoadAndBuildPuzzle();
-
-            // Mark tutorial as completed after the first tutorial run loads
-            var data = PlayerDataManager.Instance;
-            if (data != null && !data.TutorialCompleted && targetPuzzle == TutorialPuzzle)
+            
+            // Mark tutorial as completed after first tutorial run
+            if (!playerData.TutorialCompleted && targetPuzzle == TutorialPuzzle)
             {
-                data.TutorialCompleted = true;
-                data.SavePlayerData();
+                playerData.TutorialCompleted = true;
+                playerData.SavePlayerData();
                 // Debug.Log("[PuzzleManager] ✅ Tutorial marked as completed!");
             }
         }
