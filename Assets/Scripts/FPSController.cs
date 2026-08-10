@@ -103,6 +103,13 @@ namespace Vampire.Player
 
         void Update()
         {
+            if (StartupInstructionsOverlay.IsInstructionsActive)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                return;
+            }
+
             ProcessLook();
             ProcessMovement();
 
@@ -112,6 +119,11 @@ namespace Vampire.Player
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible   = true;
+            }
+            else if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 

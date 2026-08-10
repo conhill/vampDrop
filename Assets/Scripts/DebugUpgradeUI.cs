@@ -1,4 +1,7 @@
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace Vampire.DropPuzzle
 {
@@ -8,11 +11,15 @@ namespace Vampire.DropPuzzle
     /// </summary>
     public class DebugUpgradeUI : MonoBehaviour
     {
-        private PlayerDataManager playerData => PlayerDataManager.Instance;
-        private UpgradeShop shop => UpgradeShop.Instance;
+        [Header("References")]
+        [SerializeField] private PlayerDataManager playerData;
+        [SerializeField] private UpgradeShop shop;
         
         [Header("Debug Settings")]
+        [Tooltip("Enable the on-screen debug overlay and hotkey helper.")]
         public bool showOnScreenHelp = true;
+        [Tooltip("Turn this on to enable the debug hotkeys in play mode.")]
+        public bool enableDebugHotkeys = true;
         public KeyCode addCurrencyKey = KeyCode.C;
         public KeyCode addRiceKey = KeyCode.G; // G for Grains
         public KeyCode buyX2GateKey = KeyCode.Alpha1;
@@ -25,6 +32,41 @@ namespace Vampire.DropPuzzle
         private GUIStyle headerStyle;
         private GUIStyle textStyle;
         private bool initialized = false;
+        
+        private void Awake()
+        {
+            ResolveReferences();
+        }
+
+        private void Start()
+        {
+            ResolveReferences();
+        }
+
+        private void ResolveReferences()
+        {
+            if (playerData == null)
+            {
+                playerData = PlayerDataManager.Instance ?? FindObjectOfType<PlayerDataManager>();
+            }
+
+            if (shop == null)
+            {
+                shop = UpgradeShop.Instance ?? FindObjectOfType<UpgradeShop>();
+            }
+
+            if (playerData == null)
+            {
+                GameObject dataObject = new GameObject("PlayerDataManager");
+                playerData = dataObject.AddComponent<PlayerDataManager>();
+            }
+
+            if (shop == null)
+            {
+                GameObject shopObject = new GameObject("UpgradeShop");
+                shop = shopObject.AddComponent<UpgradeShop>();
+            }
+        }
         
         private void InitStyles()
         {
@@ -44,28 +86,33 @@ namespace Vampire.DropPuzzle
         
         private void Update()
         {
-            if (playerData == null || shop == null) return;
+            ResolveReferences();
+
+            if (!enableDebugHotkeys || playerData == null || shop == null)
+            {
+                return;
+            }
             
             // Add currency for testing
-            if (Input.GetKeyDown(addCurrencyKey))
+            if (GetKeyDown(addCurrencyKey))
             {
                 playerData.AddCurrency(100, "Debug Cheat");
             }
             
             // Add rice for testing
-            if (Input.GetKeyDown(addRiceKey))
+            if (GetKeyDown(addRiceKey))
             {
                 playerData.AddRice(50);
             }
             
             // Buy x2 gate upgrade
-            if (Input.GetKeyDown(buyX2GateKey))
+            if (GetKeyDown(buyX2GateKey))
             {
                 shop.BuyX2GateUpgrade();
             }
             
             // Unlock x3 gates
-            if (Input.GetKeyDown(unlockX3Key))
+            if (GetKeyDown(unlockX3Key))
             {
                 if (playerData.DropPuzzle.x3GateChance == 0)
                 {
@@ -78,7 +125,7 @@ namespace Vampire.DropPuzzle
             }
             
             // Buy bonus ball chance
-            if (Input.GetKeyDown(buyBonusBallKey))
+            if (GetKeyDown(buyBonusBallKey))
             {
                 if (playerData.DropPuzzle.bonusPointBallChance == 0)
                 {
@@ -91,13 +138,13 @@ namespace Vampire.DropPuzzle
             }
             
             // Buy pickup radius (FPS Collector)
-            if (Input.GetKeyDown(buyPickupRadiusKey))
+            if (GetKeyDown(buyPickupRadiusKey))
             {
                 shop.BuyPickupRadiusUpgrade();
             }
             
             // Buy crafting upgrade
-            if (Input.GetKeyDown(buyCraftingKey))
+            if (GetKeyDown(buyCraftingKey))
             {
                 // Try to unlock/upgrade quality tiers
                 if (playerData.Crafting.goodChance == 0)
@@ -119,16 +166,68 @@ namespace Vampire.DropPuzzle
             }
             
             // Reset all progress
-            if (Input.GetKeyDown(resetProgressKey))
+            if (GetKeyDown(resetProgressKey))
             {
                 Debug.LogWarning("[Debug] Resetting ALL progress!");
                 playerData.ResetAllProgress();
             }
         }
+
+        private bool GetKeyDown(KeyCode key)
+        {
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null)
+            {
+                return key switch
+                {
+                    KeyCode.A => Keyboard.current.aKey.wasPressedThisFrame,
+                    KeyCode.B => Keyboard.current.bKey.wasPressedThisFrame,
+                    KeyCode.C => Keyboard.current.cKey.wasPressedThisFrame,
+                    KeyCode.D => Keyboard.current.dKey.wasPressedThisFrame,
+                    KeyCode.E => Keyboard.current.eKey.wasPressedThisFrame,
+                    KeyCode.F => Keyboard.current.fKey.wasPressedThisFrame,
+                    KeyCode.G => Keyboard.current.gKey.wasPressedThisFrame,
+                    KeyCode.H => Keyboard.current.hKey.wasPressedThisFrame,
+                    KeyCode.I => Keyboard.current.iKey.wasPressedThisFrame,
+                    KeyCode.J => Keyboard.current.jKey.wasPressedThisFrame,
+                    KeyCode.K => Keyboard.current.kKey.wasPressedThisFrame,
+                    KeyCode.L => Keyboard.current.lKey.wasPressedThisFrame,
+                    KeyCode.M => Keyboard.current.mKey.wasPressedThisFrame,
+                    KeyCode.N => Keyboard.current.nKey.wasPressedThisFrame,
+                    KeyCode.O => Keyboard.current.oKey.wasPressedThisFrame,
+                    KeyCode.P => Keyboard.current.pKey.wasPressedThisFrame,
+                    KeyCode.Q => Keyboard.current.qKey.wasPressedThisFrame,
+                    KeyCode.R => Keyboard.current.rKey.wasPressedThisFrame,
+                    KeyCode.S => Keyboard.current.sKey.wasPressedThisFrame,
+                    KeyCode.T => Keyboard.current.tKey.wasPressedThisFrame,
+                    KeyCode.U => Keyboard.current.uKey.wasPressedThisFrame,
+                    KeyCode.V => Keyboard.current.vKey.wasPressedThisFrame,
+                    KeyCode.W => Keyboard.current.wKey.wasPressedThisFrame,
+                    KeyCode.X => Keyboard.current.xKey.wasPressedThisFrame,
+                    KeyCode.Y => Keyboard.current.yKey.wasPressedThisFrame,
+                    KeyCode.Z => Keyboard.current.zKey.wasPressedThisFrame,
+                    KeyCode.Alpha0 => Keyboard.current.digit0Key.wasPressedThisFrame,
+                    KeyCode.Alpha1 => Keyboard.current.digit1Key.wasPressedThisFrame,
+                    KeyCode.Alpha2 => Keyboard.current.digit2Key.wasPressedThisFrame,
+                    KeyCode.Alpha3 => Keyboard.current.digit3Key.wasPressedThisFrame,
+                    KeyCode.Alpha4 => Keyboard.current.digit4Key.wasPressedThisFrame,
+                    KeyCode.Alpha5 => Keyboard.current.digit5Key.wasPressedThisFrame,
+                    KeyCode.Alpha6 => Keyboard.current.digit6Key.wasPressedThisFrame,
+                    KeyCode.Alpha7 => Keyboard.current.digit7Key.wasPressedThisFrame,
+                    KeyCode.Alpha8 => Keyboard.current.digit8Key.wasPressedThisFrame,
+                    KeyCode.Alpha9 => Keyboard.current.digit9Key.wasPressedThisFrame,
+                    _ => Input.GetKeyDown(key)
+                };
+            }
+#endif
+            return Input.GetKeyDown(key);
+        }
         
         private void OnGUI()
         {
-            if (!showOnScreenHelp || playerData == null) return;
+            ResolveReferences();
+
+            if (!showOnScreenHelp || !enableDebugHotkeys || playerData == null) return;
             
             InitStyles();
             

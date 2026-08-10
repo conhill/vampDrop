@@ -12476,7 +12476,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22de06fd15383d45a450a5e31bdb1bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DebugUpgradeUI
+  playerData: {fileID: 0}
+  shop: {fileID: 0}
   showOnScreenHelp: 1
+  enableDebugHotkeys: 1
   addCurrencyKey: 99
   addRiceKey: 103
   buyX2GateKey: 49
@@ -15860,6 +15863,7 @@ GameObject:
   - component: {fileID: 1930484341}
   - component: {fileID: 1930484343}
   - component: {fileID: 1930484342}
+  - component: {fileID: 1930484344}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -16034,6 +16038,30 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1930484344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930484335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e22de06fd15383d45a450a5e31bdb1bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DebugUpgradeUI
+  playerData: {fileID: 0}
+  shop: {fileID: 0}
+  showOnScreenHelp: 0
+  enableDebugHotkeys: 1
+  addCurrencyKey: 99
+  addRiceKey: 103
+  buyX2GateKey: 49
+  unlockX3Key: 50
+  buyBonusBallKey: 51
+  buyCraftingKey: 53
+  buyPickupRadiusKey: 52
+  resetProgressKey: 114
 --- !u!4 &1930791704 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3668905705663804343, guid: f515ed5a3fb40f34c8a849c7209b69c1, type: 3}

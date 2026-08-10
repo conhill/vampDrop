@@ -55,6 +55,9 @@ namespace Vampire
 
         private void OnGUI()
         {
+            if (StartupInstructionsOverlay.IsInstructionsActive)
+                return;
+
             float centerX = Screen.width  / 2f;
             float centerY = Screen.height / 2f;
 
