@@ -37,9 +37,13 @@ namespace Vampire.DropPuzzle
                  "one-at-a-time trickle. Raise it to actually get a big inventory on screen " +
                  "at once: at DropInterval 0.1 a 2000-ball drop takes 200s one-at-a-time, and " +
                  "since a ball is culled a few seconds after it leaves the board, only ~66 are " +
-                 "ever alive simultaneously. DebugUpgradeUI's load-balls key raises this on the " +
-                 "scene's dropper; it is NOT restored afterwards, so exit play mode (or reset " +
-                 "it by hand) before judging normal drop pacing.")]
+                 "ever alive simultaneously. A batch spawns as a vertical COLUMN above the drop " +
+                 "point (about 2.2 ball radii per ball) rather than all on one spot, which is " +
+                 "what stops the batch spawning interpenetrating and being blasted apart — so " +
+                 "keep this low enough that the column still fits under the top of the board. " +
+                 "DebugUpgradeUI's load-balls key raises this on the scene's dropper; it is NOT " +
+                 "restored afterwards, so exit play mode (or reset it by hand) before judging " +
+                 "normal drop pacing.")]
         [Min(1)]
         public int BallsPerInterval = 1;
         
@@ -254,9 +258,21 @@ namespace Vampire.DropPuzzle
             {
                 float randomX = UnityEngine.Random.Range(-BallRadius * 3f, BallRadius * 3f);
                 float randomY = UnityEngine.Random.Range(0f, BallRadius * 0.5f);
+
+                // Balls released in the SAME tick must not spawn on top of one another.
+                // Gravity here is only -5, so in a 0.1s DropInterval a ball falls ~0.025 units
+                // — an eighth of its own 0.2 diameter. A whole batch aimed at one point
+                // therefore spawns interpenetrating, and RiceBallCollisionSystem resolves that
+                // by blasting the pile apart, which reads as an explosion rather than a drop.
+                // Stack each batch upward instead, just over a diameter apart, so it enters the
+                // board as a falling column. Slot is always 0 when BallsPerInterval is 1, so
+                // the normal one-at-a-time trickle is unchanged.
+                int   batchSlot = BallsPerInterval > 1 ? i % BallsPerInterval : 0;
+                float batchLift = batchSlot * BallRadius * 2.2f;
+
                 float3 spawnPos = new float3(
                     DropPoint.position.x + randomX,
-                    DropPoint.position.y - 0.3f + randomY,
+                    DropPoint.position.y - 0.3f + randomY + batchLift,
                     DropPoint.position.z
                 );
 

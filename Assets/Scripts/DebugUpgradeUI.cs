@@ -34,8 +34,11 @@ namespace Vampire.DropPuzzle
                  "Without this the drop trickles out one ball per DropInterval — 2000 balls at " +
                  "DropInterval 0.1 would take 200s, and because balls are culled shortly after " +
                  "leaving the board only ~66 would be alive at once, so you would never see the " +
-                 "load on screen. Set to 0 to leave the dropper untouched.")]
-        public int loadBallsPerInterval = 50;
+                 "load on screen. Each batch spawns as a vertical column above the dropper, so " +
+                 "this many balls times ~2.2 ball radii is how tall that column is — keep it " +
+                 "small enough to fit under the top of the board. Set to 0 to leave the dropper " +
+                 "untouched.")]
+        public int loadBallsPerInterval = 10;
         
         private GUIStyle headerStyle;
         private GUIStyle textStyle;

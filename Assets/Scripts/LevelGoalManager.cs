@@ -43,6 +43,10 @@ namespace Vampire.DropPuzzle
         private int  _level;
         private int  _goal;
         private bool _completed;
+
+        // Set while the goal has been hit but the drop is still running — see BeginGoHome().
+        private BallDropCompletionManager _completion;
+        private bool _waitingForDrop;
         private int  _puzzleCount;
 
         // UI
@@ -71,6 +75,7 @@ namespace Vampire.DropPuzzle
         {
             PlayerDataManager.OnCurrencyChanged -= OnCurrency;
             PuzzlePrefabLoader.OnBoardAligned   -= OnBoard;
+            UnsubscribeDropWait();
         }
 
         // ── Level setup ───────────────────────────────────────────────────────
@@ -130,7 +135,47 @@ namespace Vampire.DropPuzzle
                 _banner.text = hasNext ? "GOAL REACHED\nNext map unlocked" : "FINAL MAP CLEARED";
             }
 
-            if (SendHomeOnGoal) StartCoroutine(GoHome());
+            if (SendHomeOnGoal) BeginGoHome();
+        }
+
+        /// <summary>
+        /// Leave for the home scene, but never mid-drop.
+        ///
+        /// The goal can be crossed by the very first ball through a x2 gate while hundreds are
+        /// still in the air, and loading the home scene right then throws that whole drop away.
+        /// BallDropCompletionManager already owns the definition of "the drop is over" — every
+        /// ball scored, culled, or asleep/stuck past its threshold, plus a hard timeout — so
+        /// defer to it rather than inventing a second, competing rule here.
+        /// </summary>
+        private void BeginGoHome()
+        {
+            _completion = FindObjectOfType<BallDropCompletionManager>();
+
+            // No drop in flight (or no manager to ask) — the original immediate behaviour.
+            if (_completion == null || !_completion.isDropActive)
+            {
+                StartCoroutine(GoHome());
+                return;
+            }
+
+            _completion.OnDropComplete += OnDropFinishedGoHome;
+            _waitingForDrop = true;
+            Debug.Log("[LevelGoal] Goal reached mid-drop — holding the level exit until the " +
+                      "drop finishes (balls scored, fallen off, or stuck).");
+        }
+
+        private void OnDropFinishedGoHome()
+        {
+            UnsubscribeDropWait();
+            if (this == null || !isActiveAndEnabled) return;
+            StartCoroutine(GoHome());
+        }
+
+        private void UnsubscribeDropWait()
+        {
+            if (!_waitingForDrop) return;
+            _waitingForDrop = false;
+            if (_completion != null) _completion.OnDropComplete -= OnDropFinishedGoHome;
         }
 
         private IEnumerator GoHome()
