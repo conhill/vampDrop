@@ -56,6 +56,19 @@ namespace Vampire.DropPuzzle
         [Header("Puzzle Prefabs")]
         [Tooltip("Add your manually designed puzzle prefabs here")]
         public GameObject[] PuzzlePrefabs;
+
+        [Header("Guaranteed x2 Gate")]
+        [Tooltip("Promise a x2 gate on post-tutorial drops. The gate is placed AND stamped as " +
+                 "guaranteed, and the pre-drop slot machine is forced to land on it, so the " +
+                 "player wins the roll instead of facing the ~96% no-match odds. The tutorial " +
+                 "drop itself is always promised, independently of this.")]
+        public bool PromiseX2AfterTutorial = true;
+
+        [Tooltip("Restrict the promise above to the very first post-tutorial drop. Requires " +
+                 "PlayerDataManager.EndRun() to actually be called by something — nothing does " +
+                 "today, so leaving this ON would make the promise permanent anyway. Off = every " +
+                 "post-tutorial drop is promised, which is the behaviour the game has shipped.")]
+        public bool PromiseX2OnlyOnFirstRun = false;
         
         [Header("Puzzle Positioning")]
         [Tooltip("Offset position for loaded puzzles (to fix centering)")]
@@ -135,9 +148,12 @@ namespace Vampire.DropPuzzle
             int puzzleToLoad = ForceLastPuzzle
                 ? Mathf.Max(0, PuzzlePrefabs.Length - 1)
                 : UsePlayerLevel ? SelectPuzzleIndex() : ManualPuzzleIndex;
-            // Guarantee a 2x gate on the tutorial puzzle AND the first post-tutorial run so
-            // the player always sees the multiplier system work early.
-            bool guaranteeX2 = !IsTutorialComplete() || IsFirstPostTutorialRun();
+            // Guarantee a 2x gate on the tutorial puzzle AND post-tutorial runs so the player
+            // always sees the multiplier system work early. "Guarantee" here is the full
+            // contract, not just placement: PuzzleEnhancer stamps the gate as promised, and
+            // GateRollController forces the pre-drop slot to land on it so the roll is WON
+            // rather than left to the 96% no-match odds a new player actually has.
+            bool guaranteeX2 = !IsTutorialComplete() || ShouldPromiseX2PostTutorial();
 
             currentPuzzleIndex = puzzleToLoad;
             LoadPuzzle(puzzleToLoad, guaranteeX2);
@@ -161,14 +177,29 @@ namespace Vampire.DropPuzzle
         }
 
         /// <summary>
-        /// Returns true when we're on the very first non-tutorial puzzle run.
-        /// Used to guarantee the player sees at least one x2 gate.
+        /// Whether this post-tutorial drop should be handed a promised x2 gate.
+        ///
+        /// This used to read <c>TotalRunsCompleted == 0</c> and was described as "the very
+        /// first post-tutorial run". It never behaved that way: nothing in the project calls
+        /// <see cref="PlayerDataManager.EndRun"/>, so TotalRunsCompleted is pinned at 0 and
+        /// the promise has silently applied to EVERY post-tutorial run. That is also the
+        /// behaviour the game has actually shipped and been tuned against, so it is kept as
+        /// the default — but it is now an explicit toggle instead of a side effect of dead
+        /// code. Wiring EndRun() up later will no longer silently kill the promise.
         /// </summary>
-        private bool IsFirstPostTutorialRun()
+        private bool ShouldPromiseX2PostTutorial()
         {
-            if (!IsTutorialComplete()) return false;
-            if (PlayerDataManager.Instance == null) return false;
-            return PlayerDataManager.Instance.TotalRunsCompleted == 0;
+            if (!PromiseX2AfterTutorial) return false;
+            if (!IsTutorialComplete())   return false;
+
+            var pdm = PlayerDataManager.Instance;
+
+            // No save data at all — e.g. DropPuzzle opened directly in the Editor rather than
+            // entered from FPS_Collect, so the DontDestroyOnLoad GameSystems object never
+            // came along. Promise it, otherwise the multiplier path is untestable in isolation.
+            if (pdm == null) return true;
+
+            return !PromiseX2OnlyOnFirstRun || pdm.TotalRunsCompleted == 0;
         }
 
         /// <summary>
@@ -193,7 +224,8 @@ namespace Vampire.DropPuzzle
                 $"  TutorialManager.tutorialActive: {(tm != null ? tm.tutorialActive.ToString() : "TM missing")}\n" +
                 $"  IsTutorialComplete(): {IsTutorialComplete()}\n" +
                 $"  TotalRunsCompleted: {(pdm != null ? pdm.TotalRunsCompleted.ToString() : "PDM missing")}\n" +
-                $"  IsFirstPostTutorialRun(): {IsFirstPostTutorialRun()}"
+                $"  ShouldPromiseX2PostTutorial(): {ShouldPromiseX2PostTutorial()}\n" +
+                $"  => promised x2 this drop: {(!IsTutorialComplete() || ShouldPromiseX2PostTutorial())}"
             );
             // -----------------------
 
