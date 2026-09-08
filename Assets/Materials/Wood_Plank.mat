@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Wood_Plank
+  m_Shader: {fileID: 4800000, guid: 093e9ca448242fd42b563746f75a4436, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _TRIPLANAR
+  - _WEAR
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: a8aeac6c758818744af5bc6f2db80f00, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrimeMap:
+        m_Texture: {fileID: 2800000, guid: c9f6eb0a16a9d194ab5a17778af11c9b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Ambient: 0.40
+    - _HemiStrength: 0.45
+    - _CrackScale: 0.16
+    - _CrackStrength: 0.25
+    - _CrackWidth: 0.035
+    - _EffloStrength: 0.4
+    - _MacroScale: 0.035
+    - _MacroStrength: 0.12
+    - _PatchEdge: 0.1
+    - _PatchScale: 0.055
+    - _PatchStrength: 0.2
+    - _RustStrength: 0.45
+    - _WearBumpEps: 0.012
+    - _WearBlur: 4
+    - _WearBumpStrength: 0.7
+    - _BaseGrimeStrength: 0.5
+    - _GrimeMaxDarken: 0.45
+    - _GrimeStrength: 0
+    - _Metallic: 0
+    - _NormalScale: 1
+    - _OcclusionStr: 1
+    - _OutlineWidth: 0
+    - _PulseMin: 0.35
+    - _PulseSpeed: 1.5
+    - _RimPower: 4
+    - _RimStrength: 0.15
+    - _Smoothness: 0.12
+    - _StainScale: 0.12
+    - _StainStrength: 0.25
+    - _StreakLength: 4
+    - _StreakStrength: 0
+    - _StreakTiling: 0.5
+    - _Triplanar: 1
+    - _TriplanarScale: 0.9
+    - _TriplanarSharp: 6
+    - _WearAmount: 0.5
+    - _WearBaseRange: 3
+    - _WearBaseY: -50
+    - _WearOn: 1
+    - _WetSmoothness: 0.6
+    m_Colors:
+    - _BaseColor: {r: 0.55, g: 0.4, b: 0.27, a: 1}
+    - _CrackColor: {r: 0.05, g: 0.045, b: 0.04, a: 1}
+    - _EffloColor: {r: 0.84, g: 0.83, b: 0.79, a: 1}
+    - _PatchColor: {r: 0.72, g: 0.7, b: 0.66, a: 1}
+    - _RustColor: {r: 0.36, g: 0.16, b: 0.07, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GrimeColor: {r: 0.3, g: 0.22, b: 0.15, a: 1}
+    - _GrimeScroll: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 1, g: 0.8, b: 0.29999998, a: 1}
+    - _RimColor: {r: 1, g: 0.85, b: 0.6, a: 1}
+    - _StainColor: {r: 0.2, g: 0.15, b: 0.1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

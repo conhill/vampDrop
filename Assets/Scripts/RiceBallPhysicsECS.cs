@@ -108,6 +108,17 @@ namespace Vampire.DropPuzzle
 
                 physics.ValueRW.Position = newPosition;
 
+                // Cosmetic spin: roll about Z (screen-facing axis) proportional to
+                // horizontal speed, so balls visibly tumble instead of sliding.
+                float spinRadius = physics.ValueRO.Radius;
+                if (spinRadius > 0.001f)
+                {
+                    float angularSpeed = -physics.ValueRO.Velocity.x / spinRadius; // rad/sec
+                    transform.ValueRW.Rotation = math.mul(
+                        transform.ValueRO.Rotation,
+                        quaternion.RotateZ(angularSpeed * deltaTime));
+                }
+
                 float velocityMagnitude = math.length(physics.ValueRO.Velocity);
                 if (velocityMagnitude < 0.015f && math.abs(physics.ValueRO.Velocity.y) < 0.03f)
                 {

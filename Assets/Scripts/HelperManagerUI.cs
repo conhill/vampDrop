@@ -88,6 +88,16 @@ namespace Vampire.Helpers
             zones = FindObjectsOfType<RiceSpawnPointAuthoring>();
         }
 
+        /// <summary>
+        /// Workers/Helpers unlock once the tutorial is complete (same gate as the shop).
+        /// Until then the Tab menu is hidden. Adjust here if you tie it to a specific quest.
+        /// </summary>
+        private static bool HelpersUnlocked()
+        {
+            var tm = Vampire.DropPuzzle.TutorialManager.Instance;
+            return tm == null || !tm.tutorialActive;
+        }
+
         private void OnZoneDepleted(HelperWorker w)
         {
             Debug.Log($"[Workers] {w.WorkerName}'s zone depleted — reassign in the Workers tab.");
@@ -134,7 +144,8 @@ namespace Vampire.Helpers
                 {
                     bool escOpen = Vampire.EscapeMenuManager.Instance != null
                                 && Vampire.EscapeMenuManager.Instance.IsOpen;
-                    if (!escOpen)
+                    // Only openable once the Workers feature is unlocked. Always allow closing.
+                    if (!escOpen && (panelOpen || HelpersUnlocked()))
                     {
                         if (panelOpen) SetUIMode(false);
                         else { panelOpen = true; SetUIMode(true); }

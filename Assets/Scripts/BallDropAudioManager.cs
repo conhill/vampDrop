@@ -30,6 +30,10 @@ namespace Vampire.DropPuzzle
         [Header("Settings")]
         [Tooltip("Fade duration when transitioning between tracks")]
         public float fadeDuration = 0.5f;
+
+        [Header("Volume")]
+        [Range(0f, 1f)] public float musicVolume = 0.4f;
+        [Range(0f, 1f)] public float sfxVolume   = 0.5f;
         
         public enum DropState
         {
@@ -74,7 +78,8 @@ namespace Vampire.DropPuzzle
                 musicSource.loop = true;
                 musicSource.playOnAwake = false;
             }
-            
+            musicSource.volume = musicVolume;
+
             if (sfxSource == null)
             {
                 GameObject sfxObj = new GameObject("SFXSource");
@@ -83,6 +88,7 @@ namespace Vampire.DropPuzzle
                 sfxSource.loop = false;
                 sfxSource.playOnAwake = false;
             }
+            sfxSource.volume = sfxVolume;
             
             // Subscribe to completion event
             if (completionManager != null)

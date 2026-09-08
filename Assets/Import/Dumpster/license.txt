@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dumpster
+* source:	https://sketchfab.com/3d-models/dumpster-0c6cfb37aeb34facb4857905ef74fe24
+* author:	Artem_U (https://sketchfab.com/uzdart)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dumpster" (https://sketchfab.com/3d-models/dumpster-0c6cfb37aeb34facb4857905ef74fe24) by Artem_U (https://sketchfab.com/uzdart) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

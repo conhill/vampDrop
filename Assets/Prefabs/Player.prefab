@@ -315,8 +315,8 @@ MonoBehaviour:
   walkSpeed: 7
   runSpeed: 12
   crouchSpeed: 3
-  jumpHeight: 2.5
-  gravity: -19.62
+  jumpHeight: 1.3
+  gravity: -30
   mouseSensitivity: 2
   lookSmoothing: 10
   invertY: 0

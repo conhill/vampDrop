@@ -1,0 +1,11 @@
+Model Information:
+* title:	Woodbox
+* source:	https://sketchfab.com/3d-models/woodbox-0399355169f0407ba6c417f2a028e995
+* author:	rickmaolly (https://sketchfab.com/rickmaolly)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Woodbox" (https://sketchfab.com/3d-models/woodbox-0399355169f0407ba6c417f2a028e995) by rickmaolly (https://sketchfab.com/rickmaolly) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

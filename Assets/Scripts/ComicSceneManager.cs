@@ -36,6 +36,8 @@ namespace Vampire
         private bool transitioning;
         private float panelStartTime;
         private Sprite lastBackground;
+        private float _inputCooldownUntil;   // debounce so mashing space can't chain actions
+        private GUIStyle _promptStyle;        // fallback "press space" prompt (if none wired)
 
         private void Start()
         {
@@ -75,15 +77,21 @@ namespace Vampire
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
             {
+                // Debounce: ignore presses that arrive too fast after the last action so a
+                // mash can't both skip the entrance AND advance in the same burst.
+                if (Time.unscaledTime < _inputCooldownUntil) return;
+
                 // First press during entrance skips the animation
                 if (currentPanel != null && !currentPanel.entranceComplete)
                 {
                     currentPanel.SkipEntrance();
+                    _inputCooldownUntil = Time.unscaledTime + 0.2f;
                     return;
                 }
                 // Second press (after entrance) advances to next panel
                 if (waitingForInput)
                 {
+                    _inputCooldownUntil = Time.unscaledTime + 0.2f;
                     StartCoroutine(AdvancePanel());
                     return;
                 }
@@ -197,6 +205,31 @@ namespace Vampire
         {
             if (continuePrompt != null)
                 continuePrompt.gameObject.SetActive(visible);
+        }
+
+        // Fallback on-screen prompt when no continuePrompt TMP is wired in the scene.
+        private void OnGUI()
+        {
+            if (continuePrompt != null || !waitingForInput || transitioning) return;
+
+            if (_promptStyle == null)
+            {
+                _promptStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize  = 22,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleCenter,
+                };
+                _promptStyle.normal.textColor = Color.white;
+            }
+
+            float a = 0.55f + 0.45f * Mathf.PingPong(Time.unscaledTime * 1.5f, 1f);
+            Color prev = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.5f * a);
+            GUI.Label(new Rect(2f, Screen.height - 62f, Screen.width, 40f), "Press [SPACE] to continue", _promptStyle);
+            GUI.color = new Color(1f, 1f, 1f, a);
+            GUI.Label(new Rect(0f, Screen.height - 64f, Screen.width, 40f), "Press [SPACE] to continue", _promptStyle);
+            GUI.color = prev;
         }
     }
 }

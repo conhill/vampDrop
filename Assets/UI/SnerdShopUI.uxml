@@ -7,20 +7,33 @@
         </ui:VisualElement>
         <ui:VisualElement style="flex-direction: row; flex-grow: 1; padding: 14px 28px 24px 28px;">
             <ui:VisualElement name="snerd-panel" style="width: 1150px; margin-right: 22px; align-items: center; justify-content: flex-end;">
-                <ui:VisualElement name="stats-row" style="flex-direction: row; align-items: center; margin-bottom: 14px; background-color: rgba(0, 0, 0, 0.65); border-radius: 10px; padding: 12px 20px; position: absolute; top: 745px; left: 343px;">
+                <ui:VisualElement name="stats-row" style="flex-direction: row; align-items: center; margin-bottom: 14px; background-color: rgba(0, 0, 0, 0.65); border-radius: 10px; padding: 12px 20px; position: absolute; top: 648px; left: 1361px;">
                     <ui:Label name="currency-label" text="$0.00" style="flex-grow: 1; font-size: 22px; color: rgb(90, 220, 90); -unity-font-style: bold;"/>
                     <ui:Label name="rice-label" text="Rice: 0" style="flex-grow: 1; font-size: 18px; color: rgb(255, 210, 140);"/>
                     <ui:Label name="riceball-label" text="Riceballs: 0" style="flex-grow: 1; font-size: 18px; color: rgb(180, 180, 255);"/>
                 </ui:VisualElement>
-                <ui:VisualElement name="crafting-section" style="background-color: rgba(255, 255, 255, 0); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; position: absolute; top: 232px; left: 114px; height: 446px; width: 768px;">
-                    <ui:Label text="— Craft Riceballs —" style="font-size: 28px; color: rgb(255, 215, 90); -unity-font-style: bold; margin-bottom: 6px;"/>
-                    <ui:Label text="5 rice grains  →  1 riceball" style="font-size: 22px; color: rgb(170, 170, 170); margin-bottom: 10px;"/>
+                <ui:VisualElement name="buy-section-section" style="background-color: rgba(255, 255, 255, 0); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; position: absolute; top: 232px; left: 114px; height: 15%; width: 768px;">
+                    <ui:Label name="slot0-title" text="Pick Up Radius" style="font-size: 28px; color: rgb(255, 215, 90); -unity-font-style: bold; margin-bottom: 6px;"/>
+                    <ui:Label name="slot0-desc" text="Bigger rice pickup reach" style="font-size: 22px; color: rgb(170, 170, 170); margin-bottom: 10px;"/>
                     <ui:VisualElement style="flex-direction: row; align-items: center; font-size: 20px;">
-                        <ui:Label name="craftable-label" text="Need 5 rice to craft" style="flex-grow: 1; font-size: 20px; color: white;"/>
+                        <ui:Label name="slot0-cost" text="$100 Skrilla" style="flex-grow: 1; font-size: 20px; color: white; height: 36px;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="buy-section-section" style="background-color: rgba(255, 255, 255, 0); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; position: absolute; top: 452px; left: 121px; height: 15%; width: 768px;">
+                    <ui:Label name="slot1-title" text="Multi-Pickup" style="font-size: 28px; color: rgb(255, 215, 90); -unity-font-style: bold; margin-bottom: 6px;"/>
+                    <ui:Label name="slot1-desc" text="Grab more rice each pickup" style="font-size: 22px; color: rgb(170, 170, 170); margin-bottom: 10px;"/>
+                    <ui:VisualElement style="flex-direction: row; align-items: center; font-size: 20px;">
+                        <ui:Label name="slot1-cost" text="$400 Skrilla" style="flex-grow: 1; font-size: 20px; color: white; height: 36px;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="buy-section-section" style="background-color: rgba(255, 255, 255, 0); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; position: absolute; top: 672px; left: 125px; height: 15%; width: 768px;">
+                    <ui:Label name="slot2-title" text="Magnetic Pull" style="font-size: 28px; color: rgb(255, 215, 90); -unity-font-style: bold; margin-bottom: 6px;"/>
+                    <ui:Label name="slot2-desc" text="Rice flies toward you" style="font-size: 22px; color: rgb(170, 170, 170); margin-bottom: 10px;"/>
+                    <ui:VisualElement style="flex-direction: row; align-items: center; font-size: 20px;">
+                        <ui:Label name="slot2-cost" text="$800 Skrilla" style="flex-grow: 1; font-size: 20px; color: white; height: 36px;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Button name="craft-button" text="Craft All" style="font-size: 15px; width: 130px; height: 42px; background-color: rgba(30, 110, 30, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 284px; left: 991px;"/>
             <ui:VisualElement style="flex-grow: 1; flex-direction: column;">
                 <ui:VisualElement name="snerd-image" style="width: 100%; flex-grow: 1; -unity-background-scale-mode: scale-to-fit;">
                     <ui:Button name="exit-button" text="✕  Close" style="font-size: 15px; width: 110px; height: 42px; background-color: rgba(160, 40, 40, 0.92); color: white; border-radius: 7px; border-width: 0; -unity-font-style: bold; position: absolute; top: 837px; left: 294px;"/>
@@ -32,6 +45,12 @@
                     </ui:ScrollView>
                 </ui:VisualElement>
             </ui:VisualElement>
+            <ui:Button name="slot2-buy" text="Buy" style="font-size: 15px; width: 130px; height: 42px; background-color: rgba(30, 110, 30, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 766px; left: 988px;"/>
+            <ui:Button name="slot1-buy" text="Buy" style="font-size: 15px; width: 130px; height: 42px; background-color: rgba(30, 110, 30, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 525px; left: 992px;"/>
+            <ui:Button name="slot0-buy" text="Buy" style="font-size: 15px; width: 130px; height: 42px; background-color: rgba(30, 110, 30, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 284px; left: 991px;"/>
+            <ui:Button name="prev-page" text="‹ Prev" style="font-size: 18px; width: 110px; height: 44px; background-color: rgba(60, 60, 80, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 905px; left: 250px;"/>
+            <ui:Label name="page-label" text="Page 1 / 1" style="font-size: 20px; color: rgb(255, 215, 90); -unity-font-style: bold; position: absolute; top: 912px; left: 430px; width: 200px; -unity-text-align: middle-center;"/>
+            <ui:Button name="next-page" text="Next ›" style="font-size: 18px; width: 110px; height: 44px; background-color: rgba(60, 60, 80, 0.92); color: white; border-radius: 8px; border-width: 0; -unity-font-style: bold; position: absolute; top: 905px; left: 660px;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

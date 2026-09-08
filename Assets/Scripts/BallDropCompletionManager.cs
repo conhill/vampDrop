@@ -80,10 +80,13 @@ namespace Vampire.DropPuzzle
                 DayNightCycleManager.Instance.OnNightEnd -= HandleNightEnd;
             }
 
-            if (ballQueryCreated)
+            // On play-mode exit the ECS World can be torn down before this runs, which
+            // makes disposing the query throw. Only dispose while the world is still alive.
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (ballQueryCreated && world != null && world.IsCreated)
                 ballQuery.Dispose();
         }
-        
+
         private void Update()
         {
             if (!isDropActive || isComplete) return;

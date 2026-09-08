@@ -134,6 +134,12 @@ namespace Vampire.Player
         
         // Singleton instance for easy access
         public static FPSAudioManager Instance { get; private set; }
+
+        /// <summary>
+        /// When false, FPS background music does NOT auto-start on scene load — used during the
+        /// opening tutorial (quest 1) before Snerd introduces the boombox. Set true to resume.
+        /// </summary>
+        public static bool AutoPlayMusicOnStart = true;
         
         private void Awake()
         {
@@ -197,8 +203,9 @@ namespace Vampire.Player
             // Apply volume settings
             UpdateAudioVolumes();
             
-            // Start background music
-            PlayBackgroundMusic();
+            // Start background music (unless suppressed — e.g. tutorial quest 1 before the boombox)
+            if (AutoPlayMusicOnStart)
+                PlayBackgroundMusic();
         }
         
         private void OnDestroy()

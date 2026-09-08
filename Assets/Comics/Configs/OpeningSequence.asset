@@ -55,7 +55,7 @@ MonoBehaviour:
     sfx: {fileID: 0}
     music: {fileID: 0}
     musicVolume: 0
-  - background: {fileID: 21300000, guid: a3ddbf4029a70f84aaaa23bf2484d46f, type: 3}
+  - background: {fileID: 21300000, guid: e22bb01486d5da0478110597cda94e00, type: 3}
     character: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
     characterSide: 0
     dialogueText: 
@@ -63,10 +63,10 @@ MonoBehaviour:
     sfx: {fileID: 0}
     music: {fileID: 0}
     musicVolume: 0
-  - background: {fileID: 21300000, guid: 2fa6d17b58110344ba2b6581b953ec15, type: 3}
+  - background: {fileID: 21300000, guid: e22bb01486d5da0478110597cda94e00, type: 3}
     character: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
     characterSide: 0
-    dialogueText: Did he go into the basement
+    dialogueText: Looks like there are stairs to a basement
     autoDuration: 0
     sfx: {fileID: 0}
     music: {fileID: 0}
@@ -80,7 +80,7 @@ MonoBehaviour:
     sfx: {fileID: 0}
     music: {fileID: 0}
     musicVolume: 0
-  - background: {fileID: 21300000, guid: 2fa6d17b58110344ba2b6581b953ec15, type: 3}
+  - background: {fileID: 21300000, guid: fb336290f6ad1d34b80e33aa994aebe1, type: 3}
     character: {fileID: 21300000, guid: dc11c5d2a9e05724bac51fbe6210110f, type: 3}
     characterSide: 0
     dialogueText: 'Now that I''m home I''m safe! I''ve prepared for this day for

@@ -43,6 +43,7 @@ namespace Vampire
         private const string FPSScene   = "FPS_Collect";
         private const string DropScene  = "DropPuzzle";
         private const string ComicScene = "Comic";
+        private const string HouseScene = "Base";
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -164,11 +165,11 @@ namespace Vampire
                 CloseMenu();
             y += bH + 10f;
 
-            // Go Back to FPS (drop scene only)
+            // Return to the house (drop scene only)
             if (inDrop)
             {
-                if (GUI.Button(new Rect(cx - bW * 0.5f, y, bW, bH), "Go Back to FPS", _btnSecondary))
-                    GoBackToFPS();
+                if (GUI.Button(new Rect(cx - bW * 0.5f, y, bW, bH), "Return to House", _btnSecondary))
+                    GoBackToHouse();
                 y += bH + 10f;
             }
 
@@ -219,13 +220,11 @@ namespace Vampire
             }
         }
 
-        private void GoBackToFPS()
+        private void GoBackToHouse()
         {
             CloseMenu();
-            if (GameSceneManager.Instance != null)
-                GameSceneManager.Instance.ReturnToFPS();
-            else
-                SceneManager.LoadScene(FPSScene);
+            // Leaving the drop puzzle returns to the house (Base), not the FPS scene.
+            SceneManager.LoadScene(HouseScene);
         }
 
         private void ApplyVolumesToScene()

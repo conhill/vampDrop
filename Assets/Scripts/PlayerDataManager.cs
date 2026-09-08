@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using DataStructures.RandomSelector;
 
 namespace Vampire.DropPuzzle
 {
@@ -33,6 +34,18 @@ namespace Vampire.DropPuzzle
         public int TotalRunsCompleted = 0;
         public int HighestLevelReached = 1;
         public bool TutorialCompleted = false;
+
+        [Header("Level Progression (Drop Puzzle maps)")]
+        [Tooltip("Which map index the DropPuzzle scene loads. Set by the unlock flow / home select.")]
+        public int SelectedLevel = 0;
+        [Tooltip("Highest map index unlocked, inclusive. 0 = only the first map is playable.")]
+        public int HighestLevelUnlocked = 0;
+        [Tooltip("Skrilla accumulated toward each map's goal, indexed by level. Persists across " +
+                 "drops on the same map; a new map has its own fresh entry.")]
+        public List<int> LevelSkrillaProgress = new List<int>();
+
+        [Tooltip("Set true once Snerd gives the player the rice crafting device. Gates E-key crafting.")]
+        public bool HasCraftingDevice = false;
         
         [Header("Lifetime Stats (for Quest Progress)")]
         public int TotalRiceBallsCrafted = 0; // Cumulative riceballs crafted across all time
@@ -55,7 +68,15 @@ namespace Vampire.DropPuzzle
         }
         
         #region Currency Management
-        
+
+        /// <summary>
+        /// Fired whenever currency changes. Args: (newTotal, delta, source).
+        /// delta is positive for earnings, negative for spends. UIs subscribe to
+        /// this to animate (e.g. DropPuzzleHUD rolls the money counter up on earn)
+        /// instead of polling TotalCurrency every frame.
+        /// </summary>
+        public static event Action<int, int, string> OnCurrencyChanged;
+
         /// <summary>
         /// Award currency - both to current run and total pool
         /// </summary>
@@ -64,20 +85,52 @@ namespace Vampire.DropPuzzle
             TotalCurrency += amount;
             CurrentRunCurrency += amount;
             TotalCurrencyEarned += amount; // Track lifetime stat for quest progress
-            
+
             // Debug.Log($"[PlayerData] +{amount} currency from {source} | Run:{CurrentRunCurrency} Total:{TotalCurrency} | Lifetime earned: {TotalCurrencyEarned}");
-            
+
             // Notify tutorial manager
             if (TutorialManager.Instance != null)
             {
                 TutorialManager.Instance.NotifyCurrencyEarned(amount);
             }
-            
-            // TODO: UI update event
+
+            OnCurrencyChanged?.Invoke(TotalCurrency, amount, source);
         }
-        
+
         #endregion
-        
+
+        #region Level Progression
+
+        /// <summary>A map is playable if it's at or below the highest unlocked index.</summary>
+        public bool IsLevelUnlocked(int level) => level >= 0 && level <= HighestLevelUnlocked;
+
+        /// <summary>Skrilla accumulated toward a map's goal (0 if never played).</summary>
+        public int GetLevelProgress(int level)
+            => (level >= 0 && level < LevelSkrillaProgress.Count) ? LevelSkrillaProgress[level] : 0;
+
+        /// <summary>Add skrilla toward a map's goal. Accumulates across drops on that map.</summary>
+        public void AddLevelSkrilla(int level, int amount)
+        {
+            if (level < 0 || amount <= 0) return;
+            while (LevelSkrillaProgress.Count <= level) LevelSkrillaProgress.Add(0);
+            LevelSkrillaProgress[level] += amount;
+            SavePlayerData();
+        }
+
+        /// <summary>Unlock a map. Returns true if this newly raised the unlock ceiling.</summary>
+        public bool UnlockLevel(int level)
+        {
+            if (level > HighestLevelUnlocked)
+            {
+                HighestLevelUnlocked = level;
+                SavePlayerData();
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
+
         #region Rice & RiceBall Management
         
         /// <summary>
@@ -107,10 +160,11 @@ namespace Vampire.DropPuzzle
             
             // Roll quality for each riceball
             int fineCount = 0, goodCount = 0, greatCount = 0, excellentCount = 0;
-            
+
+            var qualitySelector = BuildQualitySelector();
             for (int i = 0; i < riceBallsToMake; i++)
             {
-                RiceBallQuality quality = RollRiceBallQuality();
+                RiceBallQuality quality = qualitySelector.SelectRandomItem(UnityEngine.Random.value);
                 switch (quality)
                 {
                     case RiceBallQuality.Fine:
@@ -142,27 +196,24 @@ namespace Vampire.DropPuzzle
         }
         
         /// <summary>
-        /// Roll riceball quality based on crafting upgrades
+        /// Builds a weighted selector for riceball quality from current crafting upgrades.
+        /// Built once per crafting batch (not per ball) since the chances don't change mid-batch.
         /// </summary>
-        private RiceBallQuality RollRiceBallQuality()
+        private DynamicRandomSelector<RiceBallQuality> BuildQualitySelector()
         {
-            float roll = UnityEngine.Random.Range(0f, 1f);
-            float cumulative = 0f;
-            
-            // Excellent (rarest)
-            cumulative += Crafting.excellentChance;
-            if (roll < cumulative) return RiceBallQuality.Excellent;
-            
-            // Great
-            cumulative += Crafting.greatChance;
-            if (roll < cumulative) return RiceBallQuality.Great;
-            
-            // Good
-            cumulative += Crafting.goodChance;
-            if (roll < cumulative) return RiceBallQuality.Good;
-            
-            // Fine (default)
-            return RiceBallQuality.Fine;
+            var selector = new DynamicRandomSelector<RiceBallQuality>();
+
+            // Excellent/Great/Good chances come from upgrades; Fine takes whatever's left over
+            // (floored above 0 so Build() always has at least one item to select from).
+            float fineChance = Mathf.Max(0.0001f, 1f - Crafting.excellentChance - Crafting.greatChance - Crafting.goodChance);
+
+            selector.Add(RiceBallQuality.Excellent, Crafting.excellentChance);
+            selector.Add(RiceBallQuality.Great, Crafting.greatChance);
+            selector.Add(RiceBallQuality.Good, Crafting.goodChance);
+            selector.Add(RiceBallQuality.Fine, fineChance);
+            selector.Build();
+
+            return selector;
         }
         
         /// <summary>
@@ -211,6 +262,7 @@ namespace Vampire.DropPuzzle
 
             TotalCurrency -= amount;
             // Debug.Log($"[PlayerData] Spent {amount} on: {purchaseDescription} | Remaining: {TotalCurrency}");
+            OnCurrencyChanged?.Invoke(TotalCurrency, -amount, purchaseDescription);
             SavePlayerData();
             return true;
         }
@@ -256,6 +308,10 @@ namespace Vampire.DropPuzzle
             TotalRunsCompleted = 0;
             HighestLevelReached = 1;
             TutorialCompleted = false;
+            HasCraftingDevice = false;
+            SelectedLevel = 0;
+            HighestLevelUnlocked = 0;
+            LevelSkrillaProgress = new List<int>();
             SavePlayerData();
             // Debug.Log("[PlayerData] ⚠️ All progress reset!");
         }
@@ -275,11 +331,25 @@ namespace Vampire.DropPuzzle
         public float x4GateChance = 0.0f;
         public float x5GateChance = 0.0f;  // Ultra rare
         
+        [Header("Weather Anomaly Chances (0-1)")]
+        // Rolled each drop during the Preparation phase. A buy station will pump
+        // these later. Independent rolls; if several hit, the rarest wins (see
+        // WeatherAnomalyRoller). All 0 = always Clear Skies.
+        public float radiationChance    = 0.0f;
+        public float falloutChance      = 0.0f;
+        public float thunderstormChance = 0.0f;
+
         [Header("Special Ball Chances")]
         public float bonusPointBallChance = 0.0f;     // 2x-5x points
         public float multiplierBoostBallChance = 0.0f; // +1 to gate multipliers
         public float luckyBallChance = 0.0f;           // Extra rewards
         
+        [Header("Gate Roll Slot Machine")]
+        [Tooltip("Which odds tier the 3-reel gate-roll slot uses. 0 = starting odds (a match " +
+                 "is rare); each level shifts weight off No-Match and onto real multipliers. " +
+                 "Raised by upgrades. See SlotMachine3Reel.Tiers for the actual tables.")]
+        public int slotOddsLevel = 0;
+
         [Header("Guaranteed Features")]
         public int guaranteedHighMultiplierGates = 0; // Force spawn specific gates
         public bool canActivateGatesDuringRun = false; // Mid-run gate control

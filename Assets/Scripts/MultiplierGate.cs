@@ -29,6 +29,52 @@ namespace Vampire.DropPuzzle
         [Header("Optional Text Display")]
         public TMPro.TextMeshPro MultiplierText;
 
+        // ── Guarantee floor ───────────────────────────────────────────────────
+
+        /// <summary>
+        /// The multiplier this gate is PROMISED to pay, regardless of what the pre-drop slot
+        /// machine rolls. PuzzleEnhancer stamps it on the gate it places to satisfy the
+        /// tutorial / first-run "you will see a x2" promise.
+        ///
+        /// Runtime only — nothing serialises it, because the guarantee is a property of a
+        /// particular run, not of the prefab. Zero means "no promise, the roll decides".
+        ///
+        /// GateRollController treats this as a FLOOR: a winning spin may raise a gate above
+        /// it, but a losing spin may not tear a guaranteed gate down. Without that the
+        /// enhancer's guarantee and the slot machine's ~96% no-match roll fight over the same
+        /// object and the roll wins, which is how the promised tutorial x2 went missing.
+        /// </summary>
+        [System.NonSerialized] public int GuaranteedMultiplier;
+
+        /// <summary>True when this gate must survive a losing pre-drop roll.</summary>
+        public bool IsGuaranteed => GuaranteedMultiplier > 0;
+
+        /// <summary>
+        /// Retarget this gate, keeping every display in step. Never lowers a guaranteed gate
+        /// below its promised floor. Use this instead of assigning <see cref="Multiplier"/>
+        /// directly — the field alone leaves the label and the tint showing the old value.
+        /// </summary>
+        public void SetMultiplier(int value)
+        {
+            Multiplier = Mathf.Max(value, GuaranteedMultiplier);
+
+            if (MultiplierText != null)
+                MultiplierText.text = $"x{Multiplier}";
+
+            var visual = GetComponent<MultiplierGateVisual>();
+            if (visual != null) visual.SetMultiplier(Multiplier);
+        }
+
+        /// <summary>
+        /// Raised when a ball actually multiplies at this gate. MultiplierGateVisual
+        /// subscribes to flash the gate. Fired from RiceBallGateInteractionSystem (ECS
+        /// path) and from OnTriggerEnter (legacy pool path).
+        /// </summary>
+        public event System.Action Hit;
+
+        /// <summary>Fire the Hit event (safe to call every hit).</summary>
+        public void RaiseHit() => Hit?.Invoke();
+
         private void Start()
         {
             var col = GetComponent<Collider>();

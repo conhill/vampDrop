@@ -1,0 +1,8 @@
+Model Information:
+* title:	[CC0] Free Low Poly Boombox
+* source:	https://sketchfab.com/3d-models/cc0-free-low-poly-boombox-d5ea7e4de7664e3eb4f249836ff7a24b
+* author:	Viktor Sano (https://sketchfab.com/sanogdv)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

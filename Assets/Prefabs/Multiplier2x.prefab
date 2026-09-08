@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 5322937861529997287}
   - component: {fileID: 6836867176044265916}
   - component: {fileID: 1385485252924381384}
-  - component: {fileID: 7160348288900038498}
+  - component: {fileID: 8885602487871069386}
+  - component: {fileID: 2267811891505585617}
   m_Layer: 0
   m_Name: Multiplier2x
   m_TagString: Untagged
@@ -113,7 +114,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7160348288900038498
+--- !u!114 &8885602487871069386
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,14 +123,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 4446269053292882638}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d750b648b61c3a49817625ab6afe55c, type: 3}
+  m_Script: {fileID: 11500000, guid: fc39fe478e58d7142a8980ae4370f6f9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.MultiplierDropZone
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.MultiplierGate
   Multiplier: 2
-  ZoneColor: {r: 1, g: 0.65, b: 0, a: 1}
-  MultiplierEffect: {fileID: 0}
-  MultiplierSound: {fileID: 0}
-  setupInfo: 'REQUIRED: BoxCollider with ''Is Trigger'' enabled!
-
-    This component
-    detects rice balls passing through.'
+  RiceBallPrefab: {fileID: 0}
+  GateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  MultiplierText: {fileID: 0}
+--- !u!114 &2267811891505585617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4446269053292882638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931db764556df3f40ad6c5fab159b2f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.MultiplierGateVisual
+  Multiplier: 2
+  ShowLabel: 1
+  LabelSize: 6
+  BobHeight: 0.08
+  BobSpeed: 1.1
+  EmissionBreath: 0.25
+  EmissionStrength: 0.35
