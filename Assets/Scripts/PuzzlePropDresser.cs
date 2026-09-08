@@ -309,6 +309,12 @@ namespace Vampire.DropPuzzle
             if (entry.Fit == FitMode.Stretch) FitStretch(container.transform, entry);
             else                              FitTiled(container.transform, entry, axis, piece.localScale);
 
+            // Tiled props honour SilhouetteScale and can end up thinner than the collider
+            // they stand in; slide them onto the face the balls actually land on.
+            // (Stretch fills the piece exactly, so it never has the gap.)
+            if (entry.Fit != FitMode.Stretch)
+                AlignSkinToContactFace(piece, container.transform, entry, axis);
+
             if (HideOriginalRenderer)
                 foreach (var r in piece.GetComponents<Renderer>())
                     r.enabled = false;
@@ -322,6 +328,51 @@ namespace Vampire.DropPuzzle
         }
 
         // ── Fitting ───────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Slide a skinny prop onto the collider face the balls actually rest on.
+        ///
+        /// A prop with SilhouetteScale &lt; 1 is thinner than the BoxCollider it stands in,
+        /// and HideOriginalRenderer hides the full-thickness box — so balls stop against an
+        /// invisible collider face while the visible plank sits centred and thin, and they
+        /// read as floating. Measured on the Shambles LongThin ramps: collider 0.818 vs a
+        /// 0.205 / 0.123 skin, i.e. a 0.307 / 0.348 gap per side, about 1.5-1.7 ball
+        /// diameters at BallRadius 0.1.
+        ///
+        /// Shrinking the collider to match is NOT an option: RiceBallPhysicsSystem clamps
+        /// ball speed to 15 u/s and the wall job clamps dt to 0.033, so a ball can cross
+        /// 0.495 units in a single step. A 0.205-thick wall would be tunnelled straight
+        /// through. So the collider keeps its thickness and the skin moves instead.
+        ///
+        /// The skin is aligned to the UPWARD-facing collider face, decided in world space so
+        /// mirrored ramps (45 vs 315) each resolve on their own. The residual gap ends up on
+        /// the underside, which nothing rests against and the head-on board camera cannot see.
+        /// </summary>
+        private void AlignSkinToContactFace(Transform piece, Transform container,
+                                            PropEntry entry, int axis)
+        {
+            float sil = Mathf.Clamp(entry.SilhouetteScale, 0.05f, 1f);
+            if (sil >= 0.999f) return; // already fills the collider — nothing to align
+
+            var box = piece.GetComponent<BoxCollider>();
+            if (box == null) return;   // no collider to align against; leave centred
+
+            // Thickness axis is the one FitTiled treats as in-plane cross-section.
+            int plane = (axis == 0) ? 1 : 0;
+
+            // Both quantities are in the piece's local units: the collider is box.size, and
+            // the skin's local thickness is exactly SilhouetteScale (FitTiled sets the copy's
+            // plane scale so world thickness == SilhouetteScale x piece lossyScale).
+            float halfGap = (box.size[plane] - sil) * 0.5f;
+            if (halfGap <= 0f) return; // skin is already as thick as the collider
+
+            Vector3 axisWorld = (plane == 0) ? piece.right : piece.up;
+            float   dir       = Vector3.Dot(axisWorld, Vector3.up) >= 0f ? 1f : -1f;
+
+            Vector3 lp = container.localPosition;
+            lp[plane]  = box.center[plane] + halfGap * dir;
+            container.localPosition = lp;
+        }
 
         /// <summary>Single copy stretched to fill the unit cube exactly.</summary>
         private void FitStretch(Transform parent, PropEntry entry)
