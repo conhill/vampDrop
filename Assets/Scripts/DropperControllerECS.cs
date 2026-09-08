@@ -32,6 +32,15 @@ namespace Vampire.DropPuzzle
         public bool DropAllAtOnce = true;
         public float DropInterval = 0.25f; // Slower spawn to prevent stacking
         public bool useInventorySystem = true; // Use crafted riceballs from inventory
+
+        [Tooltip("How many balls are released per DropInterval tick. 1 = the original " +
+                 "one-at-a-time trickle. Raise it to actually get a big inventory on screen " +
+                 "at once: at DropInterval 0.1 a 2000-ball drop takes 200s one-at-a-time, and " +
+                 "since a ball is culled a few seconds after it leaves the board, only ~66 are " +
+                 "ever alive simultaneously. DebugUpgradeUI's load-balls key raises this for " +
+                 "the stress drop and restores it afterwards.")]
+        [Min(1)]
+        public int BallsPerInterval = 1;
         
         /// <summary>Fired when the player commits to dropping (camera listens to zoom out).</summary>
         public static event System.Action OnAnyDropStarted;
@@ -238,7 +247,8 @@ namespace Vampire.DropPuzzle
 
             // Debug.Log($"[DropperControllerECS] Dropping {ballsToDrop} riceballs");
 
-            // Activate balls one per interval — only SetComponentData calls from here, no more CreateEntity
+            // Activate balls in BallsPerInterval-sized batches per DropInterval tick — only
+            // SetComponentData calls from here, no more CreateEntity
             for (int i = 0; i < ballsToDrop; i++)
             {
                 float randomX = UnityEngine.Random.Range(-BallRadius * 3f, BallRadius * 3f);
@@ -267,7 +277,10 @@ namespace Vampire.DropPuzzle
                     SleepVelocityThreshold = 0.015f
                 });
 
-                yield return new WaitForSeconds(DropInterval);
+                // Release BallsPerInterval balls per tick. At the default of 1 this is the
+                // original one-ball-per-DropInterval trickle, exactly as before.
+                if (BallsPerInterval <= 1 || (i + 1) % BallsPerInterval == 0)
+                    yield return new WaitForSeconds(DropInterval);
             }
 
             // Debug.Log($"[DropperControllerECS] ✅ Dropped {ballsToDrop} balls!");

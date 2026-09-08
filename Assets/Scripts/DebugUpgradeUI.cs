@@ -21,11 +21,56 @@ namespace Vampire.DropPuzzle
         public KeyCode buyCraftingKey = KeyCode.Alpha5;
         public KeyCode buyPickupRadiusKey = KeyCode.Alpha4;
         public KeyCode resetProgressKey = KeyCode.R;
+
+        [Header("Stress Drop (P)")]
+        [Tooltip("Fills the riceball inventory with loadBallCount Fine balls so a big drop can " +
+                 "be triggered with SPACE, without grinding out the rice by hand.")]
+        public KeyCode loadBallsKey = KeyCode.P;
+
+        [Tooltip("How many Fine riceballs the load key grants.")]
+        public int loadBallCount = 2000;
+
+        [Tooltip("BallsPerInterval to force on the scene's dropper when the load key is used. " +
+                 "Without this the drop trickles out one ball per DropInterval — 2000 balls at " +
+                 "DropInterval 0.1 would take 200s, and because balls are culled shortly after " +
+                 "leaving the board only ~66 would be alive at once, so you would never see the " +
+                 "load on screen. Set to 0 to leave the dropper untouched.")]
+        public int loadBallsPerInterval = 50;
         
         private GUIStyle headerStyle;
         private GUIStyle textStyle;
         private bool initialized = false;
         
+        /// <summary>
+        /// Fills the inventory for a stress drop and makes that drop actually releasable.
+        ///
+        /// Granting the balls alone is not enough to see them: DropperControllerECS releases
+        /// one ball per DropInterval, so 2000 balls at DropInterval 0.1 dribble out over 200
+        /// seconds, and a ball is culled a few seconds after it leaves the board — the live
+        /// count would plateau near 66 and never approach the load. Raising BallsPerInterval
+        /// for the dropper is what turns the grant into a drop you can watch.
+        /// </summary>
+        private void LoadBallsForStressDrop()
+        {
+            playerData.Inventory.FineBalls += loadBallCount;
+
+            string dropperNote = "no DropperControllerECS in this scene (enter DropPuzzle to drop)";
+            if (loadBallsPerInterval > 0)
+            {
+                var dropper = FindObjectOfType<DropperControllerECS>();
+                if (dropper != null)
+                {
+                    dropper.BallsPerInterval = loadBallsPerInterval;
+                    float seconds = loadBallCount / (float)loadBallsPerInterval * dropper.DropInterval;
+                    dropperNote = $"BallsPerInterval={loadBallsPerInterval} " +
+                                  $"(~{seconds:F1}s to release all {loadBallCount})";
+                }
+            }
+
+            Debug.Log($"[Debug] Loaded {loadBallCount} Fine riceballs — " +
+                      $"inventory total {playerData.Inventory.GetTotalBalls()}. {dropperNote}. Press SPACE to drop.");
+        }
+
         private void InitStyles()
         {
             if (initialized) return;
@@ -56,6 +101,12 @@ namespace Vampire.DropPuzzle
             if (Input.GetKeyDown(addRiceKey))
             {
                 playerData.AddRice(50);
+            }
+
+            // Load a big riceball inventory for a stress drop
+            if (Input.GetKeyDown(loadBallsKey))
+            {
+                LoadBallsForStressDrop();
             }
             
             // Buy x2 gate upgrade
@@ -204,6 +255,10 @@ namespace Vampire.DropPuzzle
             y += lineHeight;
             
             GUI.Label(new Rect(x, y, 450, lineHeight), $"[4] Radius  [5] Crafting  [R] Reset All", textStyle);
+            y += lineHeight;
+
+            GUI.Label(new Rect(x, y, 450, lineHeight),
+                $"[{loadBallsKey}] Load {loadBallCount} riceballs, then SPACE to drop", textStyle);
         }
     }
 }
