@@ -204,21 +204,18 @@ namespace Vampire.DropPuzzle
             riceQuery.Dispose();
             
             // DESTROY riceball entities from ball drop (they shouldn't persist)
+            // Batched via query-destroy (matches BallDropCompletionManager.ForceSalvage) instead of
+            // a per-entity loop, which is a separate structural change per entity at ~thousands of balls.
             var ballQuery = entityManager.CreateEntityQuery(
                 Unity.Entities.ComponentType.ReadOnly<DropPuzzle.RiceBallTag>());
-            var ballEntities = ballQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
-            
-            int destroyed = ballEntities.Length;
+
+            int destroyed = ballQuery.CalculateEntityCount();
             if (destroyed > 0)
             {
-                foreach (var entity in ballEntities)
-                {
-                    entityManager.DestroyEntity(entity);
-                }
+                entityManager.DestroyEntity(ballQuery);
                 // Debug.Log($"[BallDropUI] ♻️ Destroyed {destroyed} riceball entities from ball drop");
             }
-            
-            ballEntities.Dispose();
+
             ballQuery.Dispose();
         }
         
