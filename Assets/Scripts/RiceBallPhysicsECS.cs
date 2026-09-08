@@ -165,15 +165,23 @@ namespace Vampire.DropPuzzle
 
     /// <summary>
     /// FAST ball-to-ball collision using spatial hash grid - O(n) instead of O(n²)!
-    /// TEMPORARILY DISABLED FOR PERFORMANCE TESTING
-    /// NOTE: commenting out [UpdateInGroup]/[UpdateAfter] does NOT stop this ISystem from
-    /// auto-creating and ticking every frame in the default SimulationSystemGroup - it was
-    /// still running (and allocating a spatial hash + 4 NativeLists per frame) despite this
-    /// comment. [DisableAutoCreation] is what actually disables an ISystem.
+    /// Re-enabled: it was never actually disabled despite the old comment - commenting out
+    /// [UpdateInGroup]/[UpdateAfter] doesn't stop an ISystem from auto-creating and ticking
+    /// every frame, so this was running unscheduled (no defined order relative to
+    /// RiceBallPhysicsSystem) the whole time. Explicitly ordered now, and gated with
+    /// RequireForUpdate so it costs nothing in scenes with no riceballs (e.g. FPS_Collect).
     /// </summary>
-    [DisableAutoCreation]
+    [BurstCompile]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(RiceBallPhysicsSystem))]
     public partial struct RiceBallCollisionSystem : ISystem
     {
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<RiceBallTag>();
+        }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
