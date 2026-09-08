@@ -37,8 +37,9 @@ namespace Vampire.DropPuzzle
                  "one-at-a-time trickle. Raise it to actually get a big inventory on screen " +
                  "at once: at DropInterval 0.1 a 2000-ball drop takes 200s one-at-a-time, and " +
                  "since a ball is culled a few seconds after it leaves the board, only ~66 are " +
-                 "ever alive simultaneously. DebugUpgradeUI's load-balls key raises this for " +
-                 "the stress drop and restores it afterwards.")]
+                 "ever alive simultaneously. DebugUpgradeUI's load-balls key raises this on the " +
+                 "scene's dropper; it is NOT restored afterwards, so exit play mode (or reset " +
+                 "it by hand) before judging normal drop pacing.")]
         [Min(1)]
         public int BallsPerInterval = 1;
         
