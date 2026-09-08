@@ -86,7 +86,7 @@ Confirmed on individual frames, where it is the largest single game-code item ev
 - GC: excluding the tooling artifact frame, ~123 `GC.Alloc` samples/frame (48,682 across 397 frames) vs ~24/frame at baseline; sampled typical frames showed 27 and 245. Real but secondary to the CPU cost, and most plausibly the per-tick Temp arrays plus the `GetComponent` path above.
 - Context for the 60 fps target: median frame is 24.77 ms against a 16.67 ms budget. But baseline with **zero** balls is already 10.74 ms median in the Editor, and non-ball UI work is visible in the same frames (`UGUI.Rendering.UpdateBatches` 3.32 ms, `TMP Layout Text` 2.16 ms across 21 calls). Re-measure in a build before treating any absolute number as the real budget.
 
-### FIXED — gate-system hot path (`RiceBallGateInteractionSystem`)
+### FIXED (`79777e3`) — gate-system hot path (`RiceBallGateInteractionSystem`)
 Applied and re-measured with the identical 2000-ball procedure. **`RiceBallGateInteractionSystem`: 3.999 -> 1.591 ms/frame (-60%, 2.5x faster).** Frame median 24.77 -> 22.51 ms. `RiceBallCollisionSystem` unchanged at ~0.73 ms, confirming it was never the problem. No new console errors; `ValidateScript` clean.
 
 What changed, all in `RiceBallGateInteractionSystem.cs`:
