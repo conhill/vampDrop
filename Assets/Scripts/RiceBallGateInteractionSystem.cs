@@ -24,6 +24,29 @@ namespace Vampire.DropPuzzle
         private MultiplierGate[] _multiplierGates;
         private GoalGate[]       _goalGates;
 
+        // ── Per-gate caches (all parallel to the gate arrays above) ───────────
+        // Profiling at 2000 balls put this component at ~4.0 ms/frame — 5.5x the ECS
+        // ball-to-ball collision system — because GetComponent<Collider>() and the
+        // active/null checks ran INSIDE the per-ball x per-gate double loop, i.e.
+        // 2000 x gateCount times per physics step. Colliders are now resolved once in
+        // RefreshGates(), and bounds/usability are recomputed once per FixedUpdate
+        // (gateCount times), so the inner loop is pure struct math.
+        //
+        // Indices must stay aligned with _multiplierGates: the gate's identity bit is
+        // 1 << g, so these are parallel arrays with a validity flag rather than a
+        // compacted list of active gates.
+        private Collider[] _multiplierColliders;
+        private Bounds[]   _multiplierBounds;
+        private bool[]     _multiplierUsable;
+        private Collider[] _goalColliders;
+        private Bounds[]   _goalBounds;
+        private bool[]     _goalUsable;
+
+        // Active-scene name comparison allocated a string every FixedUpdate. The scene
+        // handle is a cheap int, so the name is only re-read when the scene changes.
+        private int  _cachedSceneHandle = -1;
+        private bool _isDropPuzzleScene;
+
         // ── Cached archetype so CreateEntity doesn't re-resolve types every call ──
         private EntityArchetype _ballArchetype;
 
@@ -61,6 +84,7 @@ namespace Vampire.DropPuzzle
                 typeof(LocalTransform),
                 typeof(RiceBallPhysics),
                 typeof(RiceBallGateTracker),
+                typeof(RiceBallType),
                 typeof(RiceBallTag)
             );
 
@@ -81,11 +105,38 @@ namespace Vampire.DropPuzzle
         {
             _multiplierGates = FindObjectsByType<MultiplierGate>(FindObjectsSortMode.None);
             _goalGates       = FindObjectsByType<GoalGate>(FindObjectsSortMode.None);
+
+            // Resolve each gate's Collider ONCE here instead of per ball per step.
+            // Called by PuzzlePrefabLoader.RefreshGateSystem() whenever a board is
+            // (re)built, so the cache tracks gate lifetime exactly as the gate arrays
+            // themselves always have — a gate destroyed later reads back as null and is
+            // skipped by the usability prepass, same as before.
+            _multiplierColliders = new Collider[_multiplierGates.Length];
+            _multiplierBounds    = new Bounds[_multiplierGates.Length];
+            _multiplierUsable    = new bool[_multiplierGates.Length];
+            for (int i = 0; i < _multiplierGates.Length; i++)
+                _multiplierColliders[i] = _multiplierGates[i] != null
+                    ? _multiplierGates[i].GetComponent<Collider>() : null;
+
+            _goalColliders = new Collider[_goalGates.Length];
+            _goalBounds    = new Bounds[_goalGates.Length];
+            _goalUsable    = new bool[_goalGates.Length];
+            for (int i = 0; i < _goalGates.Length; i++)
+                _goalColliders[i] = _goalGates[i] != null
+                    ? _goalGates[i].GetComponent<Collider>() : null;
         }
 
         private void FixedUpdate()
         {
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "DropPuzzle") return;
+            // Scene name is only re-read when the active scene actually changes —
+            // GetActiveScene().name allocates a managed string on every call.
+            var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (activeScene.handle != _cachedSceneHandle)
+            {
+                _cachedSceneHandle = activeScene.handle;
+                _isDropPuzzleScene = activeScene.name == "DropPuzzle";
+            }
+            if (!_isDropPuzzleScene) return;
 
             // ── ECB via EndFixedStepSimulationEntityCommandBufferSystem ───────
             // Unity batches the playback with other ECS structural changes at the
@@ -100,10 +151,41 @@ namespace Vampire.DropPuzzle
 
             if (_ballQuery == null || _ballQuery.IsEmpty) return;
 
+            // ── Per-gate prepass ──────────────────────────────────────────────
+            // Resolve active state and world bounds ONCE per physics step (gateCount
+            // iterations) rather than once per ball per gate (ballCount x gateCount).
+            // Collider.bounds is re-read here every step, so gates that move or get
+            // toggled by the pre-drop roll are still handled correctly.
+            int usableGates = 0;
+            for (int g = 0; g < _multiplierGates.Length; g++)
+            {
+                var gate = _multiplierGates[g];
+                var col  = _multiplierColliders[g];
+                bool ok  = gate != null && col != null && gate.gameObject.activeInHierarchy;
+                _multiplierUsable[g] = ok;
+                if (ok) { _multiplierBounds[g] = col.bounds; usableGates++; }
+            }
+            for (int g = 0; g < _goalGates.Length; g++)
+            {
+                var gate = _goalGates[g];
+                var col  = _goalColliders[g];
+                bool ok  = gate != null && col != null && gate.gameObject.activeInHierarchy;
+                _goalUsable[g] = ok;
+                if (ok) { _goalBounds[g] = col.bounds; usableGates++; }
+            }
+
+            // Nothing to test against — skip the three full-array ECS copies entirely.
+            // Each of those is a sync point, so this is the difference between a board
+            // with no live gates costing ~nothing and costing a full snapshot per step.
+            if (usableGates == 0) return;
+
             // ── Snapshot ball data ────────────────────────────────────────────
+            // RiceBallType is batched in with the rest: it used to be fetched per
+            // scoring ball via _em.GetComponentData, and every ball eventually scores.
             var entities   = _ballQuery.ToEntityArray(Allocator.Temp);
             var transforms = _ballQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
             var trackers   = _ballQuery.ToComponentDataArray<RiceBallGateTracker>(Allocator.Temp);
+            var types      = _ballQuery.ToComponentDataArray<RiceBallType>(Allocator.Temp);
 
             for (int i = 0; i < entities.Length; i++)
             {
@@ -115,17 +197,14 @@ namespace Vampire.DropPuzzle
                 // ── Multiplier gates ──────────────────────────────────────────
                 for (int g = 0; g < _multiplierGates.Length; g++)
                 {
-                    var gate = _multiplierGates[g];
-                    if (gate == null || !gate.gameObject.activeInHierarchy) continue;
+                    if (!_multiplierUsable[g]) continue;
 
                     int gateBit = 1 << g;
                     if ((hitMask & gateBit) != 0) continue; // already hit
 
-                    var col = gate.GetComponent<Collider>();
-                    if (col == null) continue;
-
-                    if (col.bounds.Contains((Vector3)ballPos))
+                    if (_multiplierBounds[g].Contains((Vector3)ballPos))
                     {
+                        var gate = _multiplierGates[g];
                         // Set the gate's bit BEFORE queuing so every spawned ball inherits it —
                         // they can chain onto OTHER gates but can't fall back through THIS one
                         // and multiply forever.
@@ -142,19 +221,16 @@ namespace Vampire.DropPuzzle
 
                 // ── Goal gates ────────────────────────────────────────────────
                 bool ballDestroyed = false;
-                foreach (var gate in _goalGates)
+                for (int g = 0; g < _goalGates.Length; g++)
                 {
-                    if (gate == null || !gate.gameObject.activeInHierarchy) continue;
+                    if (!_goalUsable[g]) continue;
 
-                    var col = gate.GetComponent<Collider>();
-                    if (col == null) continue;
-
-                    if (col.bounds.Contains((Vector3)ballPos))
+                    if (_goalBounds[g].Contains((Vector3)ballPos))
                     {
                         // Payout now scales with ball quality (Fine=1, Good=2, Excellent=5)
                         // instead of a flat +1 — so a gold ball actually pays off, and the
                         // popup shows the earned amount in the ball's colour.
-                        var type   = _em.GetComponentData<RiceBallType>(entity);
+                        var type   = types[i]; // batched above, not a per-ball ECS read
                         int payout = Mathf.Max(1, Mathf.RoundToInt(type.PointsMultiplier));
 
                         if (PlayerDataManager.Instance != null)
@@ -180,6 +256,7 @@ namespace Vampire.DropPuzzle
             entities.Dispose();
             transforms.Dispose();
             trackers.Dispose();
+            types.Dispose();
         }
 
         /// <summary>
