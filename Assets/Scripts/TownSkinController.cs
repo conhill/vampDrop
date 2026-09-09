@@ -72,6 +72,13 @@ namespace Vampire.DropPuzzle
         [Tooltip("Backdrop is oversized by this factor so edges never peek in.")]
         public float BackdropPadding = 1.15f;
 
+        [Tooltip("Re-skin the background PuzzlePrefabLoader already made (Background_ImagePlane " +
+                 "/ Background_Default / BackgroundPrefab) instead of spawning a separate " +
+                 "Town_Backdrop beside it. With this off you get two backdrop objects at " +
+                 "different depths both trying to be the sky. When on, the loader's authored Z " +
+                 "wins and BackdropZ is ignored.")]
+        public bool ReuseLoaderBackground = true;
+
         private GameObject _skinRoot;
         private PuzzlePrefabLoader.BoardFrame _lastFrame;
         private bool _hasFrame;
@@ -112,18 +119,36 @@ namespace Vampire.DropPuzzle
             // orthographic camera that half-height holds at every depth, but under perspective
             // the frame widens with distance — so a backdrop parked at BackdropZ has to be
             // scaled by the ratio of their distances or its edges show inside the frame.
+            // PuzzlePrefabLoader already creates a background object (Background_ImagePlane,
+            // Background_Default, or an instantiated BackgroundPrefab). Spawning Town_Backdrop
+            // as well left TWO backdrops in the scene at different depths, fighting over the
+            // same job — so re-skin the loader's object rather than adding a second one. Its
+            // authored Z wins, and the fit maths below is recomputed at that depth.
+            GameObject existing = ReuseLoaderBackground ? FindLoaderBackground() : null;
+            float z = existing != null ? existing.transform.position.z : BackdropZ;
+
+            // BoardFrame's OrthoSize is the half-height at the BOARD plane (Z=0). Under an
+            // orthographic camera that half-height holds at every depth, but under perspective
+            // the frame widens with distance — so a backdrop parked back there has to be
+            // scaled by the ratio of their distances or its edges show inside the frame.
             float depthScale = 1f;
             var cam = Camera.main;
             if (cam != null && !cam.orthographic)
             {
                 float boardDist = Mathf.Abs(cam.transform.position.z);
-                float backDist  = Mathf.Abs(cam.transform.position.z - BackdropZ);
+                float backDist  = Mathf.Abs(cam.transform.position.z - z);
                 if (boardDist > 0.0001f) depthScale = backDist / boardDist;
             }
 
             float w = f.OrthoSize * f.Aspect * 2f * BackdropPadding * depthScale;
             float h = f.OrthoSize * 2f * BackdropPadding * depthScale;
-            var pos = new Vector3(f.CenterX, f.CenterY, BackdropZ);
+            var pos = new Vector3(f.CenterX, f.CenterY, z);
+
+            if (existing != null)
+            {
+                ApplyBackdropToExisting(existing, pos, w, h, tier);
+                return;
+            }
 
             if (tier.BackdropSprite != null)
             {
@@ -144,6 +169,45 @@ namespace Vampire.DropPuzzle
                 var go = MakeFlatCube("Town_Backdrop", pos, new Vector3(w, h, 0.1f));
                 Tint(go, tier.BackdropColor, null);
             }
+        }
+
+        /// <summary>The background object PuzzlePrefabLoader made, if there is one.</summary>
+        private GameObject FindLoaderBackground()
+        {
+            var loader = FindObjectOfType<PuzzlePrefabLoader>();
+            return loader != null ? loader.BackgroundInstance : null;
+        }
+
+        /// <summary>
+        /// Re-skin the loader's existing background to this tier and fit it to the board,
+        /// instead of creating a second backdrop object beside it.
+        /// </summary>
+        private void ApplyBackdropToExisting(GameObject go, Vector3 pos, float w, float h, TownTier tier)
+        {
+            go.transform.position = pos;
+
+            var sr = go.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null)
+            {
+                if (tier.BackdropSprite != null) sr.sprite = tier.BackdropSprite;
+                sr.sortingOrder = -200;
+
+                // A SpriteRenderer has no width/height — it is sized purely by scale, so the
+                // fit has to be expressed against the sprite's own world bounds.
+                if (sr.sprite != null)
+                {
+                    var size = sr.sprite.bounds.size;
+                    if (size.x > 0.0001f && size.y > 0.0001f)
+                        go.transform.localScale = new Vector3(w / size.x, h / size.y, 1f);
+                }
+                if (tier.BackdropSprite == null) sr.color = tier.BackdropColor;
+                return;
+            }
+
+            // Mesh-based background (BackgroundPrefab or the Background_Default quad):
+            // scale it to the fitted size and tint it.
+            go.transform.localScale = new Vector3(w, h, go.transform.localScale.z);
+            Tint(go, tier.BackdropColor, null);
         }
 
         private void BuildFacadeObjects(PuzzlePrefabLoader.BoardFrame f, TownTier tier)

@@ -133,6 +133,14 @@ namespace Vampire.DropPuzzle
 
         private GameObject currentPuzzleInstance;
         private GameObject backgroundInstance;
+
+        /// <summary>
+        /// The background object this loader created — an instantiated BackgroundPrefab,
+        /// a "Background_ImagePlane" sprite, or the fallback "Background_Default" quad.
+        /// Exposed so TownSkinController can re-skin THIS object instead of spawning its own
+        /// Town_Backdrop on top of it, which left two backdrops stacked at different depths.
+        /// </summary>
+        public GameObject BackgroundInstance => backgroundInstance;
         private GameObject _leftWall;
         private GameObject _rightWall;
         private GameObject _spawnPoint;   // invisible anchor at bottom-center of walls, Z=0
