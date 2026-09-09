@@ -97,6 +97,25 @@ namespace Vampire.DropPuzzle
         [Tooltip("Max popups spawned per frame (prevents clutter when hundreds of balls score at once)")]
         public int MaxPopupsPerFrame = 8;
 
+        [Header("Popup readability")]
+        [Tooltip("Thickness of the dark border drawn around popup text. The popup is tinted to " +
+                 "match the ball that scored, and a Fine ball is warm white — which is invisible " +
+                 "against a screen full of warm-white balls. The border is what separates the " +
+                 "number from the mass behind it, so it matters more here than the face colour.")]
+        [Range(0f, 1f)] public float PopupOutlineWidth = 0.4f;
+
+        [Tooltip("Colour of that border. Near-black reads against every ball tier.")]
+        public Color PopupOutlineColor = new Color(0.06f, 0.05f, 0.08f, 1f);
+
+        [Tooltip("Random world-space offset applied to each popup. Several balls scoring in the " +
+                 "same gate on the same frame would otherwise stack their numbers on the exact " +
+                 "same point and smear into an unreadable blob.")]
+        public float PopupJitter = 0.35f;
+
+        [Tooltip("Floor on how bright a popup's face colour may be. Stops a dark ball tint " +
+                 "disappearing into the board; 0 keeps the palette colour untouched.")]
+        [Range(0f, 1f)] public float PopupMinBrightness = 0.75f;
+
         [Header("Camera Punch")]
         [Tooltip("Camera shake strength for a single ball scoring")]
         public float ScorePunch = 0.06f;
@@ -237,25 +256,46 @@ namespace Vampire.DropPuzzle
         private void SpawnText(Vector3 worldPos, string msg, Color color, float fontSize)
         {
             GameObject go = _popupPool.Count > 0 ? _popupPool.Pop() : CreatePopupObject();
-            go.transform.position = worldPos;
+
+            // Scatter simultaneous pops so they don't land on the identical world point and
+            // overprint each other into an unreadable smear.
+            Vector3 jitter = PopupJitter > 0f
+                ? new Vector3(Random.Range(-PopupJitter, PopupJitter),
+                              Random.Range(-PopupJitter * 0.5f, PopupJitter * 0.5f), 0f)
+                : Vector3.zero;
+            go.transform.position = worldPos + jitter;
             go.SetActive(true);
 
             var tmp = go.GetComponent<TextMeshPro>();
             if (_font != null) tmp.font = _font;
             tmp.text = msg;
             tmp.fontSize = fontSize;
-            tmp.color = color;
+            tmp.color = Brighten(color, PopupMinBrightness);
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.fontStyle = FontStyles.Bold;
             tmp.enableWordWrapping = false;
-            tmp.outlineWidth = 0.25f;         // cartoon black outline for readability
-            tmp.outlineColor = new Color32(20, 20, 20, 255);
+            tmp.outlineWidth = PopupOutlineWidth;   // dark border is what carries readability
+            tmp.outlineColor = PopupOutlineColor;
 
             // Render on top of the balls
             var mr = go.GetComponent<MeshRenderer>();
             if (mr != null) mr.sortingOrder = 5000;
 
             go.GetComponent<FloatingText>().Init(PopupLifetime, PopupRiseSpeed, ReleasePopup);
+        }
+
+        /// <summary>
+        /// Raise a colour to at least <paramref name="minValue"/> brightness, keeping its hue.
+        /// A popup is tinted to match the ball that scored, and the darker tiers can sink into
+        /// the board behind them; this lifts those without recolouring the palette.
+        /// </summary>
+        private static Color Brighten(Color c, float minValue)
+        {
+            if (minValue <= 0f) return c;
+            float v = Mathf.Max(c.r, Mathf.Max(c.g, c.b));
+            if (v >= minValue || v <= 0.0001f) return c;
+            float k = minValue / v;
+            return new Color(Mathf.Min(1f, c.r * k), Mathf.Min(1f, c.g * k), Mathf.Min(1f, c.b * k), c.a);
         }
 
         /// <summary>Creates a fresh, pool-backed popup GameObject (only happens until the pool warms up).</summary>

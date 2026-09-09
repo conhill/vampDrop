@@ -238,6 +238,13 @@ namespace Vampire.DropPuzzle
         [Tooltip("Particles per impact burst — deliberately smaller than a score burst.")]
         public int SparkParticles = 4;
 
+        [Tooltip("When a surface has no Clip of its own, play the Wall clip instead of that " +
+                 "surface's synthesized fallback. Keeps a project that only authored Wall " +
+                 "sounding consistent everywhere, while any surface you DO give a clip to " +
+                 "takes over automatically. Turn off to hear the per-surface procedural " +
+                 "blips while tuning them.")]
+        public bool FallBackToWallClip = true;
+
         [Header("Per-obstacle-type profiles (index = BallImpactSurface)")]
         public ImpactSurfaceProfile[] Surfaces;
 
@@ -345,6 +352,19 @@ namespace Vampire.DropPuzzle
                 if (surface < 0 || surface >= Surfaces.Length) surface = 0;
                 ImpactSurfaceProfile profile = Surfaces[surface];
                 if (profile == null) continue;
+
+                // Most projects only ever author the Wall clip. Once PuzzlePropDresser started
+                // tagging deflectors by the prop they wear, those obstacles resolved to Metal
+                // and Wood — surfaces with no clip — so the board suddenly played synthesized
+                // blips instead of the one real impact sound that had been dropped in. An
+                // unauthored surface should borrow the Wall clip rather than diverge from it:
+                // add a Metal clip and Metal takes over on its own, no code change.
+                if (FallBackToWallClip && surface != 0 && profile.Clip == null &&
+                    Surfaces[0] != null && Surfaces[0].Clip != null)
+                {
+                    profile = Surfaces[0];
+                    surface = 0;   // share Wall's interval + cell cooldown: it is the same sound
+                }
 
                 // ── Coalescing pass 1: this surface type just spoke, stay quiet ──
                 if (now - _surfaceLastPlay[surface] < profile.MinInterval) continue;
