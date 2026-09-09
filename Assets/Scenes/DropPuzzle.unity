@@ -565,6 +565,170 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 242609396}
   m_CullTransparentMesh: 1
+--- !u!1 &274458684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 274458686}
+  - component: {fileID: 274458685}
+  - component: {fileID: 274458687}
+  m_Layer: 0
+  m_Name: AudioFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &274458685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69a15f8a811a457459ed1a8f7846f8c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.RiceBallImpactAudio
+  EnableImpactFeedback: 1
+  MaxSoundsPerFrame: 8
+  MaxEventsScannedPerFrame: 128
+  TargetEventsPerFrame: 96
+  VoiceCount: 8
+  MinImpactSpeed: 1.6
+  LoudImpactSpeed: 8
+  SoftImpactVolume: 0.25
+  SpeedPitchBias: 0.12
+  StereoSpread: 0.55
+  CoalesceCellSize: 0.7
+  CellCooldown: 0.08
+  EnableImpactSparks: 1
+  MaxSparksPerFrame: 4
+  SparkSpeedThreshold: 4
+  SparkParticles: 4
+  FallBackToWallClip: 1
+  Surfaces:
+  - Label: Wall
+    Clip: {fileID: 8300000, guid: f2b47d13754caf7488ca0c726263e87b, type: 3}
+    PitchRange: {x: 0.86, y: 1.18}
+    Volume: 0.42
+    MinInterval: 0.035
+    FallbackFrequency: 640
+    FallbackDuration: 0.075
+    FallbackNoise: 0.4
+    SparkColor: {r: 0.95, g: 0.9, b: 0.78, a: 1}
+  - Label: Peg
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.9, y: 1.3}
+    Volume: 0.38
+    MinInterval: 0.03
+    FallbackFrequency: 1480
+    FallbackDuration: 0.045
+    FallbackNoise: 0.2
+    SparkColor: {r: 1, g: 0.95, b: 0.7, a: 1}
+  - Label: Bumper
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.82, y: 1.1}
+    Volume: 0.55
+    MinInterval: 0.055
+    FallbackFrequency: 320
+    FallbackDuration: 0.14
+    FallbackNoise: 0.1
+    SparkColor: {r: 1, g: 0.45, b: 0.35, a: 1}
+  - Label: Metal
+    Clip: {fileID: 8300000, guid: f2b47d13754caf7488ca0c726263e87b, type: 3}
+    PitchRange: {x: 0.92, y: 1.22}
+    Volume: 0.42
+    MinInterval: 0.045
+    FallbackFrequency: 1180
+    FallbackDuration: 0.22
+    FallbackNoise: 0.12
+    SparkColor: {r: 0.85, g: 0.92, b: 1, a: 1}
+  - Label: Wood
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.85, y: 1.15}
+    Volume: 0.46
+    MinInterval: 0.038
+    FallbackFrequency: 430
+    FallbackDuration: 0.07
+    FallbackNoise: 0.55
+    SparkColor: {r: 0.8, g: 0.62, b: 0.38, a: 1}
+  - Label: Glass
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.95, y: 1.35}
+    Volume: 0.34
+    MinInterval: 0.04
+    FallbackFrequency: 1860
+    FallbackDuration: 0.13
+    FallbackNoise: 0.08
+    SparkColor: {r: 0.7, g: 0.95, b: 1, a: 1}
+  - Label: Boost
+    Clip: {fileID: 0}
+    PitchRange: {x: 1.05, y: 1.55}
+    Volume: 0.5
+    MinInterval: 0.06
+    FallbackFrequency: 900
+    FallbackDuration: 0.11
+    FallbackNoise: 0.45
+    SparkColor: {r: 1, g: 0.55, b: 0.1, a: 1}
+  - Label: Soft
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.8, y: 1.05}
+    Volume: 0.34
+    MinInterval: 0.05
+    FallbackFrequency: 210
+    FallbackDuration: 0.09
+    FallbackNoise: 0.75
+    SparkColor: {r: 0.55, g: 0.55, b: 0.62, a: 1}
+--- !u!4 &274458686
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.02599, y: 0, z: -17.92037}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &274458687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d880ae79eb5a10c43ae4faad57671f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleJuice
+  PopupLifetime: 0.9
+  PopupRiseSpeed: 1.6
+  PopupFontSize: 5
+  MaxPopupsPerFrame: 8
+  PopupOutlineWidth: 0.4
+  PopupOutlineColor: {r: 0.06, g: 0.05, b: 0.08, a: 1}
+  PopupJitter: 0.35
+  PopupMinBrightness: 0.75
+  ScorePunch: 0.06
+  MultiplierPunch: 0.25
+  ScoreSound: {fileID: 8300000, guid: 0d3541aa93cec6642ad302afd8dd5d58, type: 3}
+  MultiplierSound: {fileID: 0}
+  SfxVolume: 0.5
+  ComboWindow: 1.1
+  ComboPitchStep: 0.045
+  ComboPitchCap: 2.4
+  ComboMilestone: 8
 --- !u!1 &386955979
 GameObject:
   m_ObjectHideFlags: 0
@@ -595,6 +759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.RiceBallGateInteractionSystem
   SpawnsPerFrame: 150
+  TintMultipliedBalls: 1
 --- !u!4 &386955981
 Transform:
   m_ObjectHideFlags: 0
@@ -1088,27 +1253,32 @@ MonoBehaviour:
     speechText: Welcome to the outside! You can use your bird thing to drop your
       riceballs to me at a nearby town
     worldTarget: {fileID: 0}
+    targetObjectName: 
     screenFallback: {x: 0, y: 0}
     holdSeconds: 0
   - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
     speechText: Look here! Everytime you send me RICEBALLS you have the chance to
       get additional map bonuses
     worldTarget: {fileID: 1398356041}
+    targetObjectName: 
     screenFallback: {x: 0, y: 0}
     holdSeconds: 0
   - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
     speechText: These make all the difference when trying to make the most Skrilla
     worldTarget: {fileID: 1398356041}
+    targetObjectName: 
     screenFallback: {x: 0, y: 0}
     holdSeconds: 0
   - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
     speechText: In the spirit of friendship, I'll give you a 2x gate for free!
     worldTarget: {fileID: 1398356041}
+    targetObjectName: 
     screenFallback: {x: 0, y: 0}
     holdSeconds: 0
   - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
     speechText: Control Knox using [A] / [D] and [Space] to drop the RICEBALLs
     worldTarget: {fileID: 1250113722}
+    targetObjectName: 
     screenFallback: {x: 0, y: 0}
     holdSeconds: 0
   PlayOnlyDuringTutorial: 1
@@ -1131,6 +1301,8 @@ MonoBehaviour:
   spinInterval: 0.07
   slowInterval: 0.25
   AutoStart: 1
+  GuaranteedDropMultiplier: 2
+  TreatTutorialAsGuaranteed: 1
   slotHeight: 80
   slotSpacing: 10
   HostPanel: {fileID: 0}
@@ -1281,9 +1453,9 @@ MonoBehaviour:
   BaseSpinTime: 0.85
   ReelStagger: 0.38
   SuspenseTime: 0.7
-  SlowMoSpeedFactor: 0.08
   ScrollSpeed: 2600
   SettleTime: 0.35
+  MinLaps: 1
   ResultHold: 0.7
   RequireKeyPress: 1
   StartKey: 32
@@ -1345,6 +1517,8 @@ MonoBehaviour:
   - {fileID: 3001000001, guid: 85e6f5008be9d1e4584168544dbc9cea, type: 3}
   - {fileID: 4001000001, guid: ee934665965afb349b8340da9c93ebe4, type: 3}
   - {fileID: 5001000001, guid: 4d9f48fbde71702479e1d6432d33a1c8, type: 3}
+  PromiseX2AfterTutorial: 1
+  PromiseX2OnlyOnFirstRun: 0
   PuzzlePositionOffset: {x: 0, y: 10, z: 0}
   TopPadding: 2
   PuzzleRotation: {x: 0, y: 0, z: 0}
@@ -1354,9 +1528,10 @@ MonoBehaviour:
   LevelSkrillaGoals: 64000000fa000000f4010000e8030000d0070000
   ForceLastPuzzle: 0
   BackgroundPrefab: {fileID: 0}
-  BackgroundSprite: {fileID: 21300000, guid: 855d93821fe951742af3fe78b2197840, type: 3}
+  BackgroundSprite: {fileID: 21300000, guid: 07a1c36d441383246a5524db29055b26, type: 3}
   BackgroundPosition: {x: -2, y: 1, z: -50}
   BackgroundScale: {x: 50, y: 50, z: 1}
+  NormalizeGateShape: 1
   EnableDynamicEnhancement: 1
   SideWallPrefab: {fileID: 3726684040606726451, guid: 882ee9ad1f31450488494a7df822ec18, type: 3}
   WallThickness: 0.5
@@ -1422,6 +1597,8 @@ MonoBehaviour:
   BuildBackdrop: 1
   BackdropZ: -20
   BackdropPadding: 1.15
+  ReuseLoaderBackground: 1
+  TintExistingBackground: 0
 --- !u!114 &721832742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1484,6 +1661,7 @@ MonoBehaviour:
       RandomFlip: 1
       SilhouetteScale: 0.25
       DepthFill: 0
+      ImpactSurface: 0
       Weight: 1.2
     - Prefab: {fileID: 919132149155446097, guid: d1da37a1e7c064a42b4ae567f7b26419, type: 3}
       RotationOffset: {x: 0, y: 90, z: 0}
@@ -1492,6 +1670,7 @@ MonoBehaviour:
       RandomFlip: 1
       SilhouetteScale: 0.15
       DepthFill: 0
+      ImpactSurface: 0
       Weight: 1
     WideShort:
     - Prefab: {fileID: 919132149155446097, guid: 0008481340b98954b93117e2c1103593, type: 3}
@@ -1501,6 +1680,7 @@ MonoBehaviour:
       RandomFlip: 0
       SilhouetteScale: 1
       DepthFill: 0
+      ImpactSurface: 0
       Weight: 1
     Chunky:
     - Prefab: {fileID: 919132149155446097, guid: d2467a51c6314064ba169f4facd422e6, type: 3}
@@ -1510,6 +1690,7 @@ MonoBehaviour:
       RandomFlip: 1
       SilhouetteScale: 1
       DepthFill: 0
+      ImpactSurface: 0
       Weight: 1
   Source: 0
   ManualTier: 0
@@ -1517,6 +1698,7 @@ MonoBehaviour:
   ElongatedAspect: 1.8
   ThinThreshold: 1.5
   HideOriginalRenderer: 1
+  StampImpactSurface: 1
   DressBasket: 1
   NameBlocklist:
   - PuzzleBounds
@@ -3313,3 +3495,4 @@ SceneRoots:
   - {fileID: 668413132}
   - {fileID: 1398356041}
   - {fileID: 70761978}
+  - {fileID: 274458686}
