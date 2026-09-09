@@ -233,6 +233,14 @@ namespace Vampire
             if (fps  != null) { fps.SetMusicVolume(_musicVolume);  fps.SetSFXVolume(_sfxVolume);  }
             var drp = FindFirstObjectByType<DropPuzzle.BallDropAudioManager>();
             if (drp != null) { drp.SetMusicVolume(_musicVolume); drp.SetSFXVolume(_sfxVolume); }
+
+            // The drop puzzle's actual gameplay SFX do not live on BallDropAudioManager — its
+            // sfxSource plays only the transition sting. Score/multiplier stingers are on
+            // DropPuzzleJuice, and ball impacts on RiceBallImpactAudio (which reads the master
+            // level off BallDropAudioManager itself, so it needs no call here). Without this
+            // the SFX slider left most of the drop puzzle untouched.
+            var juice = FindFirstObjectByType<DropPuzzle.DropPuzzleJuice>();
+            if (juice != null) juice.SetMasterVolume(_sfxVolume);
         }
 
         private void SavePrefs()

@@ -206,7 +206,7 @@ namespace Vampire.DropPuzzle
 
         [Range(0f, 1f)]
         [Tooltip("Volume of the quietest audible impact, as a fraction of the loudest.")]
-        public float SoftImpactVolume = 0.25f;
+        public float SoftImpactVolume = 0.45f;
 
         [Range(0f, 0.5f)]
         [Tooltip("Extra pitch added at full impact speed, on top of the random range. " +
@@ -470,8 +470,12 @@ namespace Vampire.DropPuzzle
         {
             // Pure lookup — no scene searching happens here. Re-acquisition is handled once
             // per drain by TryAcquireAudioManager(), and is bounded (see _mgrRetries).
+            // Read the player's master SFX setting only. This used to read
+            // sfxSource.volume / sfxVolume, i.e. the mix level of BallDropAudioManager's own
+            // one-shot source — which carries nothing but the transition sting. Folding that
+            // in scaled every ball impact by an unrelated clip's balance.
             if (_audioMgr == null) return 1f;
-            return _audioMgr.sfxSource != null ? _audioMgr.sfxSource.volume : _audioMgr.sfxVolume;
+            return _audioMgr.SfxMasterLevel;
         }
 
         /// <summary>

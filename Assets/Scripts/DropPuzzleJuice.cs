@@ -320,11 +320,20 @@ namespace Vampire.DropPuzzle
                 DropPuzzleCameraController.Instance.Punch(strength);
         }
 
+        /// <summary>
+        /// Master SFX level from the settings slider, 0..1, multiplied over SfxVolume.
+        /// The escape-menu SFX slider used to reach only BallDropAudioManager (whose SFX
+        /// source carries nothing but the transition sting) and FPSAudioManager — so it never
+        /// touched the score/multiplier sounds at all.
+        /// </summary>
+        public void SetMasterVolume(float volume) => _master = Mathf.Clamp01(volume);
+        private float _master = 1f;
+
         private void PlaySfx(AudioClip clip, float pitch = 1f)
         {
             if (clip == null || _sfx == null) return;
             _sfx.pitch = pitch;                 // applies to the PlayOneShot voice
-            _sfx.PlayOneShot(clip, SfxVolume);
+            _sfx.PlayOneShot(clip, SfxVolume * _master);
         }
 
         /// <summary>
