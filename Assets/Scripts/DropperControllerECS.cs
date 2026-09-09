@@ -300,6 +300,15 @@ namespace Vampire.DropPuzzle
                     yield return new WaitForSeconds(DropInterval);
             }
 
+            // Every ball is out. Until this point BallDropCompletionManager cannot tell a
+            // drop that has not started from one that has finished — the entities are all
+            // created up front, parked and asleep — so its completion checks stay disarmed
+            // until now. Without this signal the puzzle never ends on its own.
+            if (completionManager != null)
+                completionManager.NotifyReleaseComplete();
+
+            isDropping = false;
+
             // Debug.Log($"[DropperControllerECS] ✅ Dropped {ballsToDrop} balls!");
         }
         

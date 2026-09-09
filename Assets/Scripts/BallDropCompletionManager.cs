@@ -32,6 +32,11 @@ namespace Vampire.DropPuzzle
         // Track ball positions to detect stuck balls
         private Dictionary<Entity, BallTrackingData> trackedBalls = new Dictionary<Entity, BallTrackingData>();
         private float nextCheckTime = 0f;
+
+        // False until DropperControllerECS has finished handing out every ball. Guards the
+        // "no balls left" / "all asleep" fast paths, which are indistinguishable from a drop
+        // whose entities are all still parked. See NotifyReleaseComplete().
+        private bool _releaseFinished;
         private float _dropStartTime = 0f;
         private List<Entity> _toRemove = new List<Entity>(8);
 
@@ -117,9 +122,32 @@ namespace Vampire.DropPuzzle
             ballsRemaining = 0;
             ballsStuck = 0;
             _dropStartTime = Time.time;
+            _releaseFinished = false;
             trackedBalls.Clear();
 
+            // nextCheckTime is a plain field that was never reset, so a stale value from a
+            // previous session let the very first CheckCompletion run immediately — before
+            // the dropper had woken anything. Every ball is parked and asleep at that instant.
+            nextCheckTime = Time.time + checkInterval;
+
             Debug.Log("[BallDropCompletion] Drop session started");
+        }
+
+        /// <summary>
+        /// Called by DropperControllerECS once its release loop has handed out every ball.
+        ///
+        /// DropAllBallsECS creates ALL the ball entities up front, parked off-screen and
+        /// IsSleeping=true, then wakes them a batch at a time. Until that finishes, "no balls
+        /// left" and "every ball is asleep" are both TRUE of a drop that has barely started —
+        /// so the two fast-path completions below must not fire yet. The hard timeout is also
+        /// measured from here, so a long release does not eat the budget meant for the fall.
+        /// </summary>
+        public void NotifyReleaseComplete()
+        {
+            if (!isDropActive || isComplete) return;
+            _releaseFinished = true;
+            _dropStartTime   = Time.time;
+            Debug.Log("[BallDropCompletion] Release finished — completion checks armed.");
         }
         
         /// <summary>
@@ -137,24 +165,30 @@ namespace Vampire.DropPuzzle
             ballsRemaining = entities.Length;
             ballsStuck = 0;
 
-            if (ballsRemaining == 0)
+            // Both fast paths below are also true of a drop that has not started releasing
+            // yet — the entities exist, parked and asleep — so they only count once the
+            // dropper says every ball is out. The hard timeout in Update() still applies.
+            if (_releaseFinished)
             {
-                entities.Dispose();
-                physicsDatas.Dispose();
-                CompleteDropSession("All balls scored/deleted");
-                return;
-            }
+                if (ballsRemaining == 0)
+                {
+                    entities.Dispose();
+                    physicsDatas.Dispose();
+                    CompleteDropSession("All balls scored/deleted");
+                    return;
+                }
 
-            // Fast path: if every remaining ball is sleeping, physics is done
-            bool allSleeping = true;
-            for (int i = 0; i < physicsDatas.Length; i++)
-                if (!physicsDatas[i].IsSleeping) { allSleeping = false; break; }
-            if (allSleeping)
-            {
-                entities.Dispose();
-                physicsDatas.Dispose();
-                CompleteDropSession($"All {ballsRemaining} balls sleeping");
-                return;
+                // Fast path: if every remaining ball is sleeping, physics is done
+                bool allSleeping = true;
+                for (int i = 0; i < physicsDatas.Length; i++)
+                    if (!physicsDatas[i].IsSleeping) { allSleeping = false; break; }
+                if (allSleeping)
+                {
+                    entities.Dispose();
+                    physicsDatas.Dispose();
+                    CompleteDropSession($"All {ballsRemaining} balls sleeping");
+                    return;
+                }
             }
 
             // Remove stale tracking entries — reuse cached list, no GC
@@ -205,7 +239,7 @@ namespace Vampire.DropPuzzle
             entities.Dispose();
             physicsDatas.Dispose();
 
-            if (ballsRemaining > 0 && ballsStuck == ballsRemaining)
+            if (_releaseFinished && ballsRemaining > 0 && ballsStuck == ballsRemaining)
                 CompleteDropSession($"All {ballsRemaining} balls stuck");
         }
         
