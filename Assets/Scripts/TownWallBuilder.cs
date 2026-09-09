@@ -166,9 +166,25 @@ namespace Vampire.DropPuzzle
                 cursor += Place(body, wallX, z, cursor, rot);
             }
 
-            // 4. Roof cap sits directly on the last piece — no gap.
+            // 3b. Close the leftover gap up to the roof line.
+            //
+            // Left and right are built independently and every Pick() is random, so the two
+            // stacks stop at whatever height their own module heights happened to add up to —
+            // the loop above bails as soon as ONE more body piece would overshoot, leaving a
+            // remainder of up to a full module. The roof then sat on that cursor, so the two
+            // sides visibly capped at different heights. Stretching one last piece to fill
+            // exactly the remainder makes both columns terminate at bodyCeiling.
+            float remainder = bodyCeiling - cursor;
+            if (remainder > 0.01f)
+            {
+                var filler = Pick(BodyModules);
+                if (filler != null) PlaceStretched(filler, wallX, z, cursor, rot, remainder);
+            }
+
+            // 4. Roof cap sits on the SHARED ceiling, not on wherever this column's stack
+            //    happened to end — so both sides top out at exactly topY.
             if (roof != null)
-                Place(roof, wallX, z, cursor, rot);
+                Place(roof, wallX, z, bodyCeiling, rot);
         }
 
         // Instantiates a module, strips colliders, and positions it bottom-anchored at
@@ -207,6 +223,42 @@ namespace Vampire.DropPuzzle
                 Debug.LogWarning($"[TownWallBuilder] '{prefab.name}' has ~zero bounds height " +
                                  $"(size={b.size}). No renderers, or scale is too small — it won't be visible.");
 
+            return b.size.y;
+        }
+
+        /// <summary>
+        /// Place() but vertically stretched to occupy exactly <paramref name="targetHeight"/>.
+        /// Used only for the single filler piece that closes a column's remainder, so both
+        /// side walls reach the same roof line. Assumes ModuleRotation keeps the module's
+        /// local Y pointing up (multiples of 90 about Y, which the kit uses) — a rotation
+        /// that tips Y onto another axis would stretch the wrong dimension.
+        /// </summary>
+        private float PlaceStretched(GameObject prefab, float wallX, float z, float bottomY,
+                                     Quaternion rot, float targetHeight)
+        {
+            var go = Instantiate(prefab, _root.transform);
+            go.transform.localScale = ModuleScale;
+            go.transform.rotation   = rot;
+
+            foreach (var col in go.GetComponentsInChildren<Collider>(true))
+                Destroy(col);
+
+            float natural = WorldBounds(go).size.y;
+            if (natural > 0.0001f)
+            {
+                Vector3 s = go.transform.localScale;
+                s.y *= targetHeight / natural;
+                go.transform.localScale = s;
+            }
+
+            var b = WorldBounds(go);
+            Vector3 p = go.transform.position;
+            if (AlignHorizontalByPivot) { p.x = wallX; p.z = z; }
+            else { p.x += wallX - b.center.x; p.z += z - b.center.z; }
+            p.y += bottomY - b.min.y;
+            go.transform.position = p;
+
+            _placed++;
             return b.size.y;
         }
 
