@@ -28,7 +28,7 @@ namespace Vampire.DropPuzzle
         public KeyCode loadBallsKey = KeyCode.P;
 
         [Tooltip("How many Fine riceballs the load key grants.")]
-        public int loadBallCount = 2000;
+        public int loadBallCount = 50;
 
         [Tooltip("BallsPerInterval to force on the scene's dropper when the load key is used. " +
                  "Without this the drop trickles out one ball per DropInterval — 2000 balls at " +

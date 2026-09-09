@@ -22,15 +22,30 @@ namespace Vampire.DropPuzzle
         public static readonly Color Great     = new Color(0.69f, 0.36f, 1.00f); // purple
         public static readonly Color Excellent = new Color(1.00f, 0.82f, 0.25f); // gold
 
+        /// <summary>
+        /// Balls minted by a multiplier gate, rather than dropped from the dropper.
+        ///
+        /// Quality TypeIDs are 0/1/2/4, so 5 is free. A gate clone inherits its parent's
+        /// RiceBallType wholesale, which made a x2 gate's output visually identical to its
+        /// input — there was no way to see, in motion, whether the gate was multiplying at
+        /// all. Stamping this id on the clones (and only the id; PointsMultiplier and the
+        /// rest of the struct are untouched, so payouts are unchanged) makes them read as a
+        /// separate colour everywhere the palette is used: the balls themselves, their score
+        /// popups, and their impact sparks.
+        /// </summary>
+        public const  int   MultipliedTypeId = 5;
+        public static readonly Color Multiplied = new Color(0.20f, 1.00f, 0.45f); // hot green
+
         /// <summary>Colour for a given RiceBallType.TypeID.</summary>
         public static Color ForType(int typeId)
         {
             switch (typeId)
             {
-                case 1:  return Good;
-                case 2:  return Great;
-                case 4:  return Excellent;
-                default: return Fine; // 0 and any unmapped id
+                case 1:                return Good;
+                case 2:                return Great;
+                case 4:                return Excellent;
+                case MultipliedTypeId: return Multiplied;
+                default:               return Fine; // 0 and any unmapped id
             }
         }
     }

@@ -31,13 +31,17 @@ namespace Vampire.DropPuzzle
 
         // The four visible quality buckets, in RiceBallType.TypeID → bucket order.
         // Colours come from the shared RiceBallPalette so a ball matches its score popup.
+        // Bucket 4 is not a quality tier — it is "minted by a multiplier gate". See
+        // RiceBallPalette.MultipliedTypeId for why gate clones carry their own id.
         private static readonly Color[] BucketColor =
         {
-            RiceBallPalette.Fine, RiceBallPalette.Good, RiceBallPalette.Great, RiceBallPalette.Excellent
+            RiceBallPalette.Fine, RiceBallPalette.Good, RiceBallPalette.Great, RiceBallPalette.Excellent,
+            RiceBallPalette.Multiplied
         };
         // Higher tiers glow so a rare ball is unmistakable mid-fall. Kept restrained:
         // common balls don't glow at all, only the genuinely rare ones lift a little.
-        private static readonly float[] BucketEmission = { 0f, 0f, 0.3f, 0.8f };
+        // Gate clones glow hardest of all — the whole point is to spot them in a falling mass.
+        private static readonly float[] BucketEmission = { 0f, 0f, 0.3f, 0.8f, 1.0f };
 
         private void Start()
         {
@@ -62,12 +66,14 @@ namespace Vampire.DropPuzzle
             }
         }
 
-        // TypeID → visible bucket: 1=Good, 2=Great, 4=Excellent; everything else = Fine.
+        // TypeID → visible bucket: 1=Good, 2=Great, 4=Excellent,
+        // 5=minted by a multiplier gate; everything else = Fine.
         private static int BucketOf(int typeId) => typeId switch
         {
             1 => 1,
             2 => 2,
             4 => 3,
+            RiceBallPalette.MultipliedTypeId => 4,
             _ => 0
         };
 
@@ -86,7 +92,7 @@ namespace Vampire.DropPuzzle
             // Draw one bucket (quality) at a time so each batch carries a single colour —
             // one flat colour per DrawMeshInstanced call, which URP/Lit honours reliably
             // (no fragile per-instance colour arrays). At most 4 extra draw calls total.
-            for (int bucket = 0; bucket < 4; bucket++)
+            for (int bucket = 0; bucket < BucketColor.Length; bucket++)
                 DrawBucket(transforms, types, bucket);
         }
 

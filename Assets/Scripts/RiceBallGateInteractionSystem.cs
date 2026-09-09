@@ -60,6 +60,17 @@ namespace Vampire.DropPuzzle
         [Tooltip("Max multiplier balls created per physics step; the rest carry to the next frame (nothing is dropped).")]
         public int SpawnsPerFrame = 150;
 
+        [Tooltip("Give balls minted by a multiplier gate their own colour (hot green, strongly " +
+                 "emissive) instead of inheriting the parent ball's. A clone otherwise looks " +
+                 "identical to its parent, so there is no way to see whether a gate is actually " +
+                 "multiplying. Only RiceBallType.TypeID is changed — the ball is worth exactly " +
+                 "the same at the goal gate.")]
+        public bool TintMultipliedBalls = true;
+
+        [Tooltip("Log a line every time a multiplier gate fires, with how many balls it queued " +
+                 "and the current backlog. Cheap — one line per gate hit, not per ball.")]
+        public bool LogMultiplierHits = false;
+
         private struct PendingSpawn
         {
             public float3 BasePos;
@@ -286,6 +297,10 @@ namespace Vampire.DropPuzzle
                     StackIndex      = i
                 });
             }
+
+            if (LogMultiplierHits)
+                Debug.Log($"[GateInteraction] x{gate.Multiplier} gate hit — queued {extra} extra " +
+                          $"ball(s); backlog now {_pendingSpawns.Count}.");
         }
 
         /// <summary>Create up to SpawnsPerFrame queued balls; the remainder waits for later frames.</summary>
@@ -314,9 +329,21 @@ namespace Vampire.DropPuzzle
                     IsSleeping             = false,
                     SleepVelocityThreshold = 0.015f
                 });
-                ecb.SetComponent(newBall, p.Type);
+                // Colour gate-minted balls differently so the multiplier is visible in motion.
+                // Only TypeID changes — PointsMultiplier and the rest of the struct carry over,
+                // so what the ball is WORTH at the goal gate is untouched.
+                var type = p.Type;
+                if (TintMultipliedBalls) type.TypeID = RiceBallPalette.MultipliedTypeId;
+                ecb.SetComponent(newBall, type);
+
                 ecb.SetComponent(newBall, p.Tracker);
-                ecb.SetComponent(newBall, p.Lifetime);
+
+                // Lifetime restarts from now. Inheriting the parent's SpawnTime meant a clone
+                // minted 20s into a drop was born 20s old against MaxLifetime 30 and got culled
+                // after 10s — which reads exactly like "the gate isn't spawning anything".
+                var lifetime = p.Lifetime;
+                lifetime.SpawnTime = Time.time;
+                ecb.SetComponent(newBall, lifetime);
             }
         }
 
