@@ -79,6 +79,13 @@ namespace Vampire.DropPuzzle
                  "wins and BackdropZ is ignored.")]
         public bool ReuseLoaderBackground = true;
 
+        [Tooltip("Apply the tier's BackdropColor to the reused background when the tier has no " +
+                 "BackdropSprite of its own. OFF by default: the colour multiplies whatever " +
+                 "texture is already there, and the default is nearly black, so turning this on " +
+                 "over real background art blacks it out. Only enable when the existing " +
+                 "background is an untextured placeholder you want the tier to colour.")]
+        public bool TintExistingBackground = false;
+
         private GameObject _skinRoot;
         private PuzzlePrefabLoader.BoardFrame _lastFrame;
         private bool _hasFrame;
@@ -189,7 +196,12 @@ namespace Vampire.DropPuzzle
             var sr = go.GetComponentInChildren<SpriteRenderer>();
             if (sr != null)
             {
-                if (tier.BackdropSprite != null) sr.sprite = tier.BackdropSprite;
+                if (tier.BackdropSprite != null)
+                {
+                    sr.sprite = tier.BackdropSprite;
+                    // White, or the tint below would modulate the art we just assigned.
+                    sr.color  = Color.white;
+                }
                 sr.sortingOrder = -200;
 
                 // A SpriteRenderer has no width/height — it is sized purely by scale, so the
@@ -200,14 +212,22 @@ namespace Vampire.DropPuzzle
                     if (size.x > 0.0001f && size.y > 0.0001f)
                         go.transform.localScale = new Vector3(w / size.x, h / size.y, 1f);
                 }
-                if (tier.BackdropSprite == null) sr.color = tier.BackdropColor;
+
+                // BackdropColor is the tier's FALLBACK look for when it supplies no art of its
+                // own — it is not a tint to lay over somebody else's. SpriteRenderer.color
+                // multiplies the texture, so applying the default (0.12, 0.11, 0.13) to the
+                // loader's existing sprite crushed it to near-black.
+                if (tier.BackdropSprite == null && TintExistingBackground)
+                    sr.color = tier.BackdropColor;
                 return;
             }
 
             // Mesh-based background (BackgroundPrefab or the Background_Default quad):
-            // scale it to the fitted size and tint it.
+            // scale it to the fitted size. Same rule on colour — an untextured default quad
+            // wants the tier colour, a prefab carrying real art does not.
             go.transform.localScale = new Vector3(w, h, go.transform.localScale.z);
-            Tint(go, tier.BackdropColor, null);
+            if (TintExistingBackground)
+                Tint(go, tier.BackdropColor, null);
         }
 
         private void BuildFacadeObjects(PuzzlePrefabLoader.BoardFrame f, TownTier tier)
