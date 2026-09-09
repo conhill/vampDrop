@@ -59,7 +59,8 @@ namespace Vampire.DropPuzzle
             string n = obj.name.ToLowerInvariant();
             if (n.Contains("peg") || n.Contains("pin"))                  return BallImpactSurface.Peg;
             if (n.Contains("bumper") || n.Contains("bounce"))            return BallImpactSurface.Bumper;
-            if (n.Contains("metal") || n.Contains("steel") || n.Contains("rail")) return BallImpactSurface.Metal;
+            if (n.Contains("metal") || n.Contains("steel") || n.Contains("rail")
+                || n.Contains("tin") || n.Contains("corrugat")) return BallImpactSurface.Metal;
             if (n.Contains("wood") || n.Contains("plank"))               return BallImpactSurface.Wood;
             if (n.Contains("glass") || n.Contains("crystal"))            return BallImpactSurface.Glass;
             if (n.Contains("soft") || n.Contains("pad") || n.Contains("cushion")) return BallImpactSurface.Soft;

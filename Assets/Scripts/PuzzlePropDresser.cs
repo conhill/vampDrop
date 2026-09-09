@@ -87,6 +87,14 @@ namespace Vampire.DropPuzzle
                      "smears. Does not affect tile count or the silhouette.")]
             public float DepthFill = 0f;
 
+            [Tooltip("What this prop should SOUND like when a ball hits it. Impact audio is " +
+                     "resolved from the piece GameObject, whose name is 'smallwall (2)' and so " +
+                     "on — which matches no keyword and falls through to the generic Wall " +
+                     "profile. So a deflector dressed as corrugated tin still thudded like a " +
+                     "bare wall. Leave on Wall to auto-detect from the prop prefab's name " +
+                     "instead (ScrapPlank -> Wood, CorrugatedTin -> Metal, ...).")]
+            public BallImpactSurface ImpactSurface = BallImpactSurface.Wall;
+
             [Tooltip("Relative pick weight within its bucket. 0 disables this entry.")]
             public float Weight = 1f;
 
@@ -134,6 +142,12 @@ namespace Vampire.DropPuzzle
         [Header("Behaviour")]
         [Tooltip("Switch off the original grey cube renderer. Colliders are always kept.")]
         public bool HideOriginalRenderer = true;
+
+        [Tooltip("Stamp an ImpactSurfaceTag on each dressed piece so its impact sound matches " +
+                 "the prop it was skinned with. Without this every deflector sounds like a " +
+                 "generic wall, because impact audio resolves from the piece's own name " +
+                 "('smallwall (2)') and never sees the prop.")]
+        public bool StampImpactSurface = true;
         [Tooltip("Also dress the catch-basket pieces (BasketFloor / BasketWall_*).")]
         public bool DressBasket = true;
         [Tooltip("Names containing any of these are skipped (case-insensitive).")]
@@ -315,6 +329,8 @@ namespace Vampire.DropPuzzle
             if (entry.Fit != FitMode.Stretch)
                 AlignSkinToContactFace(piece, container.transform, entry, axis);
 
+            ApplyImpactSurface(piece, entry);
+
             if (HideOriginalRenderer)
                 foreach (var r in piece.GetComponents<Renderer>())
                     r.enabled = false;
@@ -328,6 +344,33 @@ namespace Vampire.DropPuzzle
         }
 
         // ── Fitting ───────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Make the piece SOUND like the prop that was just dressed onto it.
+        ///
+        /// RiceBallWallCollisionSystem.CacheWalls() resolves each obstacle's impact surface
+        /// once, from the piece GameObject, via ImpactSurfaceTag.Resolve. The pieces are named
+        /// "smallwall (2)", "smallwall (5)" and so on, which match none of Resolve's keywords,
+        /// so every deflector on the board resolved to the generic Wall profile — including
+        /// the ones visibly dressed as corrugated tin or scrap planking. Stamping the tag here
+        /// closes that gap, because this runs during AlignPuzzleToWalls and CacheWalls only
+        /// fires 0.1s later (RefreshWalls' Invoke delay), so the tag is in place first.
+        /// </summary>
+        private void ApplyImpactSurface(Transform piece, PropEntry entry)
+        {
+            if (!StampImpactSurface) return;
+
+            var surface = entry.ImpactSurface;
+
+            // Left at the default? Infer it from the prop prefab's own name, so an existing
+            // prop set gets the right sound with no per-entry authoring.
+            if (surface == BallImpactSurface.Wall && entry.Prefab != null)
+                surface = ImpactSurfaceTag.Resolve(entry.Prefab);
+
+            var tag = piece.GetComponent<ImpactSurfaceTag>();
+            if (tag == null) tag = piece.gameObject.AddComponent<ImpactSurfaceTag>();
+            tag.Surface = surface;
+        }
 
         /// <summary>
         /// Slide a skinny prop onto the collider face the balls actually rest on.
