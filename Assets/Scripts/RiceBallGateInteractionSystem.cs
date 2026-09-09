@@ -67,9 +67,6 @@ namespace Vampire.DropPuzzle
                  "the same at the goal gate.")]
         public bool TintMultipliedBalls = true;
 
-        [Tooltip("Log a line every time a multiplier gate fires, with how many balls it queued " +
-                 "and the current backlog. Cheap — one line per gate hit, not per ball.")]
-        public bool LogMultiplierHits = false;
 
         private struct PendingSpawn
         {
@@ -297,10 +294,6 @@ namespace Vampire.DropPuzzle
                     StackIndex      = i
                 });
             }
-
-            if (LogMultiplierHits)
-                Debug.Log($"[GateInteraction] x{gate.Multiplier} gate hit — queued {extra} extra " +
-                          $"ball(s); backlog now {_pendingSpawns.Count}.");
         }
 
         /// <summary>Create up to SpawnsPerFrame queued balls; the remainder waits for later frames.</summary>
