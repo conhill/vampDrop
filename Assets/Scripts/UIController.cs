@@ -26,6 +26,10 @@ public class UIController : MonoBehaviour
     [SerializeField] Sprite sunSprite;
     [SerializeField] Sprite moonSprite;
 
+    [Header("Crafting")]
+    [Tooltip("Shown in the HUD once Snerd gives the player the crafting device.")]
+    [SerializeField] Sprite crafterSprite;
+
     [Header("Debug")]
     [Tooltip("Enable to print binding status and quest state changes to the console")]
     [SerializeField] bool debugLogs = true;
@@ -58,6 +62,11 @@ public class UIController : MonoBehaviour
 
     // Currency
     private Label _currencyAmount;
+
+    // Crafting device icon (shown once Snerd gives the device)
+    private VisualElement _crafterIcon;
+    private bool _lastHasDevice   = false;
+    private bool _crafterIconInit = false;
 
     // Helpers
     private Label _helperDeployed;
@@ -125,6 +134,9 @@ public class UIController : MonoBehaviour
 
         // Currency
         _currencyAmount = Bind<Label>(root, "currency-amount");
+
+        // Crafting device icon
+        _crafterIcon = Bind<VisualElement>(root, "crafter-icon");
 
         // Helpers
         _helperDeployed      = Bind<Label>(root, "helper-deployed");
@@ -328,6 +340,17 @@ public class UIController : MonoBehaviour
             _lastCurrency = pd.TotalCurrency;
             if (_currencyAmount != null) _currencyAmount.text = $"${_lastCurrency}";
         }
+
+        // Crafting device icon — appears once Snerd gives the device.
+        bool hasDevice = pd.HasCraftingDevice;
+        if (_crafterIcon != null && (hasDevice != _lastHasDevice || !_crafterIconInit))
+        {
+            _lastHasDevice   = hasDevice;
+            _crafterIconInit = true;
+            if (hasDevice && crafterSprite != null)
+                _crafterIcon.style.backgroundImage = new StyleBackground(crafterSprite);
+            _crafterIcon.style.display = hasDevice ? DisplayStyle.Flex : DisplayStyle.None;
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -438,6 +461,7 @@ public class UIController : MonoBehaviour
         _lastTimerSecond = -1;
         _lastRice = _lastFine = _lastGood = _lastGreat = _lastExcellent = -1;
         _lastCurrency = _lastDeployed = _lastMaxHelpers = _lastRiceBallsCrafted = -1;
+        _crafterIconInit = false;
 
         UpdateDayNight();
         UpdatePlayerData();

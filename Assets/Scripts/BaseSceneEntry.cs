@@ -13,6 +13,15 @@ namespace Vampire.DropPuzzle
         [Header("Scene")]
         public string baseSceneName = "Base";
 
+        [Header("First-Visit Comic")]
+        [Tooltip("Optional comic played the FIRST time this door is used, before the scene loads. " +
+                 "For the ball-drop door, drop your BeforeFirstDropScene comic here.")]
+        public Vampire.ComicSequenceConfig firstVisitComic;
+
+        // Tracks which destination scenes have already shown their first-visit comic this session.
+        private static readonly System.Collections.Generic.HashSet<string> _comicsShown =
+            new System.Collections.Generic.HashSet<string>();
+
         [Header("UI")]
         public string enterPrompt = "Press [F] to enter the house";
 
@@ -46,13 +55,22 @@ namespace Vampire.DropPuzzle
         {
             if (Tutorial != null && Tutorial.tutorialActive && Tutorial.tutorialStep == 4)
             {
-                // TutorialManager triggers the comic which loads Base as its next scene
+                // Tutorial step 4: TutorialManager triggers the enter-house comic + scene load.
                 Tutorial.NotifyEnteredBase();
+                return;
             }
-            else
+
+            // First time through this door, play its intro comic (if assigned), then the
+            // comic returns to baseSceneName. Subsequent visits load the scene directly.
+            if (firstVisitComic != null && !_comicsShown.Contains(baseSceneName))
             {
-                SceneManager.LoadScene(baseSceneName);
+                _comicsShown.Add(baseSceneName);
+                Vampire.ComicSceneManager.NextSceneOverride = baseSceneName;
+                Vampire.ComicSceneLoader.LoadComic(firstVisitComic);
+                return;
             }
+
+            SceneManager.LoadScene(baseSceneName);
         }
 
         private void OnGUI()
@@ -64,7 +82,7 @@ namespace Vampire.DropPuzzle
             {
                 _guiStyle = new GUIStyle(GUI.skin.label)
                 {
-                    fontSize  = 20,
+                    fontSize  = 16,
                     alignment = TextAnchor.MiddleCenter
                 };
                 _guiStyle.normal.textColor = Color.green;

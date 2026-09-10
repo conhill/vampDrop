@@ -54,7 +54,15 @@ namespace Vampire.DropPuzzle
         
         private void Update()
         {
-            // E-key crafting removed — crafting now only available at Snerd in Base scene
+            // Player crafts riceballs themselves — but only once Snerd has given them the
+            // crafting device (HasCraftingDevice). Reverts the "craft at Snerd" behaviour.
+            if (Input.GetKeyDown(craftKey)
+                && playerData != null
+                && playerData.HasCraftingDevice
+                && !isCrafting)
+            {
+                CraftRiceBalls();
+            }
         }
         
         /// <summary>

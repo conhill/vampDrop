@@ -36,23 +36,33 @@ namespace Vampire.DropPuzzle
 
         private void Interact()
         {
+            // Remember where the player is standing so any comic / scene reload this interaction
+            // triggers returns them here instead of the scene's default spawn.
+            if (Tutorial != null)
+            {
+                var pl = GameObject.FindGameObjectWithTag("Player");
+                if (pl != null)
+                    Tutorial.SavePlayerPosition(pl.transform.position, pl.transform.rotation);
+            }
+
             if (mode == SnerdMode.TutorialFPS)
             {
                 if (Tutorial == null || !Tutorial.tutorialActive) return;
                 if (Tutorial.tutorialStep == 2)
                 {
-                    var player = GameObject.FindGameObjectWithTag("Player");
-                    if (player != null)
-                        Tutorial.SavePlayerPosition(player.transform.position, player.transform.rotation);
-
                     Tutorial.NotifySnerdTalkedFPS();
                     Destroy(gameObject);
                 }
                 return;
             }
 
-            // Base mode: open the full shop UI when tutorial is done
-            if (Tutorial == null || !Tutorial.tutorialActive)
+            // Base mode: open the full shop UI once the tutorial is done OR once the player has
+            // completed their first drop (TutorialCompleted), so it's reachable during the final
+            // "Earn Skrilla" step instead of being locked behind it.
+            bool shopUnlocked = Tutorial == null
+                || !Tutorial.tutorialActive
+                || (PlayerDataManager.Instance != null && PlayerDataManager.Instance.TutorialCompleted);
+            if (shopUnlocked)
             {
                 SnerdBaseShopUI.Instance?.Open();
                 return;
@@ -61,11 +71,12 @@ namespace Vampire.DropPuzzle
             switch (Tutorial.tutorialStep)
             {
                 case 5:
+                    // Snerd hands over the rice crafting device; the player crafts themselves after.
+                    if (PlayerDataManager.Instance != null)
+                        PlayerDataManager.Instance.HasCraftingDevice = true;
                     Tutorial.NotifySnerdTalkedBase1();
                     break;
-                case 6:
-                    RiceCraftingSystem.Instance?.CraftRiceBalls();
-                    break;
+                // Step 6 (Craft Riceballs) is now done by the player with the device — not at Snerd.
                 case 7:
                     Tutorial.NotifySnerdTalkedBase2();
                     break;
@@ -86,8 +97,8 @@ namespace Vampire.DropPuzzle
 
             switch (Tutorial.tutorialStep)
             {
-                case 5: return "Press [E] to talk to Snerd";
-                case 6: return "Press [E] to craft riceballs here";
+                case 5: return "Press [E] to get the crafting device from Snerd";
+                case 6: return ""; // crafting is done by the player with the device, not at Snerd
                 case 7: return "Press [E] to talk to Snerd";
                 default: return "";
             }
@@ -104,7 +115,7 @@ namespace Vampire.DropPuzzle
             {
                 _guiStyle = new GUIStyle(GUI.skin.box)
                 {
-                    fontSize  = 24,
+                    fontSize  = 16,
                     alignment = TextAnchor.MiddleCenter
                 };
                 _guiStyle.normal.textColor     = Color.white;

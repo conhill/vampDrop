@@ -35,8 +35,8 @@ namespace Vampire.Player
             var pos = (Unity.Mathematics.float3)_cachedPlayerTransform.position;
             var rot = (Unity.Mathematics.quaternion)_cachedPlayerTransform.rotation;
 
+            // Burst-compiled: the lambda only writes pos/rot captured from outside, no managed calls inside.
             Entities
-                .WithoutBurst()
                 .WithAll<PlayerData>()
                 .ForEach((Entity entity, ref LocalTransform transform) =>
                 {

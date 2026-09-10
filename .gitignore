@@ -111,3 +111,20 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ── Local tooling, captures and scratch — not part of the project ──────────
+# Vendored editor plugin dropped into Packages/ locally. manifest.json and
+# packages-lock.json stay TRACKED — only this folder is ignored.
+/Packages/Coplay/
+
+# Profiler captures: large, binary, machine-specific, regenerated on demand.
+/ProfilerCaptures/
+
+# Local Blender bridge — tooling that sits next to the project, not in it.
+/blender_mcp/
+
+# Backups and Windows shortcuts that accumulate while editing.
+*.bak
+*.bak.meta
+*.lnk
+*.lnk.meta

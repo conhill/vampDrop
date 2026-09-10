@@ -31,10 +31,11 @@ namespace Vampire.DropPuzzle
         public TextMeshProUGUI timeDisplay;
         
         [Header("Settings")]
-        public string fpsSceneName = "FPS_Collect";
+        [Tooltip("Scene to return to after the drop — the house.")]
+        public string returnSceneName = "Base";
 
         [Header("Comics")]
-        [Tooltip("Comic shown after completing the first (tutorial) drop. nextSceneName should be FPS_Collect.")]
+        [Tooltip("Comic shown after completing the first (tutorial) drop. Its destination is overridden to the house.")]
         public Vampire.ComicSequenceConfig afterFirstDropComic;
 
         private static bool _afterFirstDropComicShown = false;
@@ -108,7 +109,7 @@ namespace Vampire.DropPuzzle
             // Wire up button
             if (goBackButton != null)
             {
-                goBackButton.onClick.AddListener(GoBackToFPS);
+                goBackButton.onClick.AddListener(GoBackToHouse);
             }
             
             // Hide panels initially
@@ -133,7 +134,7 @@ namespace Vampire.DropPuzzle
             
             if (goBackButton != null)
             {
-                goBackButton.onClick.RemoveListener(GoBackToFPS);
+                goBackButton.onClick.RemoveListener(GoBackToHouse);
             }
         }
         
@@ -149,7 +150,7 @@ namespace Vampire.DropPuzzle
             {
                 if (Vampire.EscapeMenuManager.Instance != null)
                     return; // EscapeMenuManager.Update() owns ESC
-                GoBackToFPS();
+                GoBackToHouse();
                 return;
             }
 
@@ -157,7 +158,7 @@ namespace Vampire.DropPuzzle
             if (completionManager != null && completionManager.isComplete)
             {
                 if (Input.GetKeyDown(KeyCode.E))
-                    GoBackToFPS();
+                    GoBackToHouse();
                 return; // Nothing else to update — completion screen is static
             }
 
@@ -203,21 +204,18 @@ namespace Vampire.DropPuzzle
             riceQuery.Dispose();
             
             // DESTROY riceball entities from ball drop (they shouldn't persist)
+            // Batched via query-destroy (matches BallDropCompletionManager.ForceSalvage) instead of
+            // a per-entity loop, which is a separate structural change per entity at ~thousands of balls.
             var ballQuery = entityManager.CreateEntityQuery(
                 Unity.Entities.ComponentType.ReadOnly<DropPuzzle.RiceBallTag>());
-            var ballEntities = ballQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
-            
-            int destroyed = ballEntities.Length;
+
+            int destroyed = ballQuery.CalculateEntityCount();
             if (destroyed > 0)
             {
-                foreach (var entity in ballEntities)
-                {
-                    entityManager.DestroyEntity(entity);
-                }
+                entityManager.DestroyEntity(ballQuery);
                 // Debug.Log($"[BallDropUI] ♻️ Destroyed {destroyed} riceball entities from ball drop");
             }
-            
-            ballEntities.Dispose();
+
             ballQuery.Dispose();
         }
         
@@ -252,47 +250,17 @@ namespace Vampire.DropPuzzle
                 Debug.Log("[BallDropUI] Tutorial marked complete — puzzle 2+ will load on next visit");
             }
             
-            if (completionPanel == null)
-            {
-                // Debug.LogError("[BallDropUI] ⚠️ completionPanel is NULL! Assign it in the Inspector.");
-                return;
-            }
-            
-            // Calculate currency earned
+            // Calculate currency earned and build the completion-screen stats line.
             if (playerData != null)
-            {
                 currencyEarned = playerData.TotalCurrency - startingCurrency;
-            }
-            
-            completionPanel.SetActive(true);
-            
-            if (completionText != null)
-            {
-                if (completionManager != null)
-                {
-                    string message = "🎉 Drop Complete!\n\n";
-                    
-                    // Show currency earned
-                    if (playerData != null && currencyEarned > 0)
-                    {
-                        message += $"💰 Earned: ${currencyEarned / 100f:F2}\n";
-                    }
-                    else
-                    {
-                        message += "✅ Complete!\n";
-                    }
-                    
-                    message += "\n[E] Return to FPS mode";
-                    
-                    completionText.text = message;
-                }
-                else
-                {
-                    completionText.text = "Drop Complete!\n\n[E] Return";
-                }
-            }
-            
-            // Debug.Log($"[BallDropUI] Completion - Earned ${currencyEarned} - Press [E] to return");
+
+            _completionStatsStr = currencyEarned > 0
+                ? $"Earned  ${currencyEarned / 100f:F2}"
+                : "Complete!";
+
+            // The completion screen + [E]/click return are drawn by OnGUI (IMGUI). We rely on
+            // that rather than the legacy completionPanel because DropPuzzleHUD disables the old
+            // uGUI canvas this lives on — IMGUI still renders and BallDropUI stays active.
         }
         
         /// <summary>
@@ -327,7 +295,7 @@ namespace Vampire.DropPuzzle
         /// <summary>
         /// Go back to FPS scene
         /// </summary>
-        private void GoBackToFPS()
+        private void GoBackToHouse()
         {
             // Resume day/night cycle when leaving completion screen
             if (cycleManager != null)
@@ -345,12 +313,13 @@ namespace Vampire.DropPuzzle
             if (showAfterDropComic)
             {
                 _afterFirstDropComicShown = true;
-                // Comic's nextSceneName must be "FPS_Collect" — set in the Inspector
+                // Route the comic back to the house regardless of the asset's nextSceneName.
+                Vampire.ComicSceneManager.NextSceneOverride = returnSceneName;
                 Vampire.ComicSceneLoader.LoadComic(afterFirstDropComic);
                 return;
             }
 
-            SceneManager.LoadScene(fpsSceneName);
+            SceneManager.LoadScene(returnSceneName);
         }
         
         /// <summary>
@@ -425,10 +394,10 @@ namespace Vampire.DropPuzzle
 
                 _guiBigStyle.fontSize = 28;
                 GUI.Label(new Rect(Screen.width / 2 - 250, Screen.height / 2 + 50, 500, 40),
-                    "[E] Return to FPS mode", _guiBigStyle);
+                    "[E] Return to house", _guiBigStyle);
 
                 if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 95, 200, 40), "or Click Here"))
-                    GoBackToFPS();
+                    GoBackToHouse();
 
                 return;
             }
@@ -446,7 +415,7 @@ namespace Vampire.DropPuzzle
             if (completionPanel == null)
             {
                 if (GUI.Button(new Rect(Screen.width - 220, Screen.height - 60, 200, 50), "Go Back [Esc]"))
-                    GoBackToFPS();
+                    GoBackToHouse();
             }
         }
     }

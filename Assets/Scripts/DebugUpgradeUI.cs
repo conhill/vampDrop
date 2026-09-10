@@ -28,6 +28,7 @@ namespace Vampire.DropPuzzle
         public KeyCode buyCraftingKey = KeyCode.Alpha5;
         public KeyCode buyPickupRadiusKey = KeyCode.Alpha4;
         public KeyCode resetProgressKey = KeyCode.R;
+
         
         private GUIStyle headerStyle;
         private GUIStyle textStyle;

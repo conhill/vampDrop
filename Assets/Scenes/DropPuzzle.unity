@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &70761976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 70761978}
+  - component: {fileID: 70761977}
+  m_Layer: 0
+  m_Name: LevelGoalManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &70761977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 70761976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f18f928f96a1c64ba000115879dd04b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.LevelGoalManager
+  HomeSceneName: Base
+  SendHomeOnGoal: 1
+  HomeDelay: 2.5
+  BuildUI: 1
+--- !u!4 &70761978
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 70761976}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &105696967
 GameObject:
   m_ObjectHideFlags: 0
@@ -517,6 +565,170 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 242609396}
   m_CullTransparentMesh: 1
+--- !u!1 &274458684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 274458686}
+  - component: {fileID: 274458685}
+  - component: {fileID: 274458687}
+  m_Layer: 0
+  m_Name: AudioFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &274458685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69a15f8a811a457459ed1a8f7846f8c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.RiceBallImpactAudio
+  EnableImpactFeedback: 1
+  MaxSoundsPerFrame: 8
+  MaxEventsScannedPerFrame: 128
+  TargetEventsPerFrame: 96
+  VoiceCount: 8
+  MinImpactSpeed: 1.6
+  LoudImpactSpeed: 8
+  SoftImpactVolume: 0.25
+  SpeedPitchBias: 0.12
+  StereoSpread: 0.55
+  CoalesceCellSize: 0.7
+  CellCooldown: 0.08
+  EnableImpactSparks: 1
+  MaxSparksPerFrame: 4
+  SparkSpeedThreshold: 4
+  SparkParticles: 4
+  FallBackToWallClip: 1
+  Surfaces:
+  - Label: Wall
+    Clip: {fileID: 8300000, guid: f2b47d13754caf7488ca0c726263e87b, type: 3}
+    PitchRange: {x: 0.86, y: 1.18}
+    Volume: 0.42
+    MinInterval: 0.035
+    FallbackFrequency: 640
+    FallbackDuration: 0.075
+    FallbackNoise: 0.4
+    SparkColor: {r: 0.95, g: 0.9, b: 0.78, a: 1}
+  - Label: Peg
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.9, y: 1.3}
+    Volume: 0.38
+    MinInterval: 0.03
+    FallbackFrequency: 1480
+    FallbackDuration: 0.045
+    FallbackNoise: 0.2
+    SparkColor: {r: 1, g: 0.95, b: 0.7, a: 1}
+  - Label: Bumper
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.82, y: 1.1}
+    Volume: 0.55
+    MinInterval: 0.055
+    FallbackFrequency: 320
+    FallbackDuration: 0.14
+    FallbackNoise: 0.1
+    SparkColor: {r: 1, g: 0.45, b: 0.35, a: 1}
+  - Label: Metal
+    Clip: {fileID: 8300000, guid: f2b47d13754caf7488ca0c726263e87b, type: 3}
+    PitchRange: {x: 0.92, y: 1.22}
+    Volume: 0.42
+    MinInterval: 0.045
+    FallbackFrequency: 1180
+    FallbackDuration: 0.22
+    FallbackNoise: 0.12
+    SparkColor: {r: 0.85, g: 0.92, b: 1, a: 1}
+  - Label: Wood
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.85, y: 1.15}
+    Volume: 0.46
+    MinInterval: 0.038
+    FallbackFrequency: 430
+    FallbackDuration: 0.07
+    FallbackNoise: 0.55
+    SparkColor: {r: 0.8, g: 0.62, b: 0.38, a: 1}
+  - Label: Glass
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.95, y: 1.35}
+    Volume: 0.34
+    MinInterval: 0.04
+    FallbackFrequency: 1860
+    FallbackDuration: 0.13
+    FallbackNoise: 0.08
+    SparkColor: {r: 0.7, g: 0.95, b: 1, a: 1}
+  - Label: Boost
+    Clip: {fileID: 0}
+    PitchRange: {x: 1.05, y: 1.55}
+    Volume: 0.5
+    MinInterval: 0.06
+    FallbackFrequency: 900
+    FallbackDuration: 0.11
+    FallbackNoise: 0.45
+    SparkColor: {r: 1, g: 0.55, b: 0.1, a: 1}
+  - Label: Soft
+    Clip: {fileID: 0}
+    PitchRange: {x: 0.8, y: 1.05}
+    Volume: 0.34
+    MinInterval: 0.05
+    FallbackFrequency: 210
+    FallbackDuration: 0.09
+    FallbackNoise: 0.75
+    SparkColor: {r: 0.55, g: 0.55, b: 0.62, a: 1}
+--- !u!4 &274458686
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.02599, y: 0, z: -17.92037}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &274458687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274458684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d880ae79eb5a10c43ae4faad57671f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleJuice
+  PopupLifetime: 0.9
+  PopupRiseSpeed: 1.6
+  PopupFontSize: 5
+  MaxPopupsPerFrame: 8
+  PopupOutlineWidth: 0.4
+  PopupOutlineColor: {r: 0.06, g: 0.05, b: 0.08, a: 1}
+  PopupJitter: 0.35
+  PopupMinBrightness: 0.75
+  ScorePunch: 0.06
+  MultiplierPunch: 0.25
+  ScoreSound: {fileID: 8300000, guid: 0d3541aa93cec6642ad302afd8dd5d58, type: 3}
+  MultiplierSound: {fileID: 0}
+  SfxVolume: 0.5
+  ComboWindow: 1.1
+  ComboPitchStep: 0.045
+  ComboPitchCap: 2.4
+  ComboMilestone: 8
 --- !u!1 &386955979
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,6 +758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349a7819964145e4bb7c53c19c8e8369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.RiceBallGateInteractionSystem
+  SpawnsPerFrame: 150
+  TintMultipliedBalls: 1
 --- !u!4 &386955981
 Transform:
   m_ObjectHideFlags: 0
@@ -592,6 +806,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.BallDropCompletionManager
   stuckThreshold: 3.5
   checkInterval: 0.5
+  maxPuzzleTime: 60
   isDropActive: 0
   isComplete: 0
   ballsRemaining: 0
@@ -874,7 +1089,7 @@ MonoBehaviour:
   warningPanel: {fileID: 1525304185}
   warningText: {fileID: 515129934}
   timeDisplay: {fileID: 1435073015}
-  fpsSceneName: FPS_Collect
+  returnSceneName: Base
   afterFirstDropComic: {fileID: 0}
 --- !u!1 &613338708
 GameObject:
@@ -997,6 +1212,256 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 250, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &668413127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 668413132}
+  - component: {fileID: 668413131}
+  - component: {fileID: 668413130}
+  - component: {fileID: 668413129}
+  - component: {fileID: 668413128}
+  - component: {fileID: 668413134}
+  - component: {fileID: 668413133}
+  - component: {fileID: 668413135}
+  - component: {fileID: 668413136}
+  m_Layer: 0
+  m_Name: DropPuzzleManagers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &668413128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48618c13b21f5446821d93f7aae2a17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleTutorialOverlay
+  Steps:
+  - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
+    speechText: Welcome to the outside! You can use your bird thing to drop your
+      riceballs to me at a nearby town
+    worldTarget: {fileID: 0}
+    targetObjectName: 
+    screenFallback: {x: 0, y: 0}
+    holdSeconds: 0
+  - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
+    speechText: Look here! Everytime you send me RICEBALLS you have the chance to
+      get additional map bonuses
+    worldTarget: {fileID: 1398356041}
+    targetObjectName: 
+    screenFallback: {x: 0, y: 0}
+    holdSeconds: 0
+  - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
+    speechText: These make all the difference when trying to make the most Skrilla
+    worldTarget: {fileID: 1398356041}
+    targetObjectName: 
+    screenFallback: {x: 0, y: 0}
+    holdSeconds: 0
+  - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
+    speechText: In the spirit of friendship, I'll give you a 2x gate for free!
+    worldTarget: {fileID: 1398356041}
+    targetObjectName: 
+    screenFallback: {x: 0, y: 0}
+    holdSeconds: 0
+  - characterSprite: {fileID: 21300000, guid: 79974eb602463454986f9fd472231343, type: 3}
+    speechText: Control Knox using [A] / [D] and [Space] to drop the RICEBALLs
+    worldTarget: {fileID: 1250113722}
+    targetObjectName: 
+    screenFallback: {x: 0, y: 0}
+    holdSeconds: 0
+  PlayOnlyDuringTutorial: 1
+  panelColor: {r: 0.03, g: 0.03, b: 0.1, a: 0.9}
+  arrowColor: {r: 1, g: 0.85, b: 0.15, a: 0.92}
+  ringColor: {r: 1, g: 0.85, b: 0.15, a: 0.8}
+--- !u!114 &668413129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20445e97e2da68447b953275448b49a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.GateRollController
+  spinDuration: 1.8
+  spinInterval: 0.07
+  slowInterval: 0.25
+  AutoStart: 1
+  GuaranteedDropMultiplier: 2
+  TreatTutorialAsGuaranteed: 1
+  slotHeight: 80
+  slotSpacing: 10
+  HostPanel: {fileID: 0}
+--- !u!114 &668413130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d7f139fee7e999438f5973528575686, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleHUD
+--- !u!114 &668413131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd5e1c6762571a047a636594d538faf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleFlowManager
+  DebugStartingBalls: 0
+--- !u!4 &668413132
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &668413133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9702064e1af534f944c955c16beb6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.PrepEffectsController
+  FlashDuration: 0.9
+  FlashPeakAlpha: 0.5
+  SkipOnClear: 1
+--- !u!114 &668413134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ce7638d1ada5ec4482d847edd6e01a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.WeatherRollController
+  rollDuration: 1.2
+  holdDuration: 1
+  shuffleInterval: 0.08
+  Wheel: {fileID: 0}
+  BannerLabel: {fileID: 0}
+  ForceAnomaly: 0
+--- !u!114 &668413135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c693324d84da8154e88ecaaef2b70111, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.WeatherWheelUI
+  GridSize: 5
+  CellSize: 88
+  CellSpacing: 6
+  SpinLoops: 2
+  MinStepInterval: 0.03
+  MaxStepInterval: 0.14
+  RevealHold: 0.4
+  HideWhenDone: 1
+  Styles: []
+  RingLayout: 
+--- !u!114 &668413136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f56fede05905b6e4ba8f60b77b640163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.SlotMachine3Reel
+  PanelSize: 510
+  PanelColor: {r: 0.08, g: 0.06, b: 0.1, a: 0.95}
+  SortingOrder: 24
+  DimBackground: 1
+  DimAlpha: 0.92
+  DimColor: {r: 0, g: 0, b: 0, a: 1}
+  DimFadeTime: 0.2
+  Strip: 02000000030000000200000005000000020000000300000002000000050000000300000002000000
+  CellHeight: 110
+  ReelWidth: 130
+  ReelSpacing: 14
+  Tiers:
+  - Name: Level 1 (default)
+    NoMatchWeight: 96
+    WinValues: 020000000300000005000000
+    WinWeights:
+    - 3
+    - 0.9
+    - 0.1
+  - Name: Level 2
+    NoMatchWeight: 85
+    WinValues: 020000000300000005000000
+    WinWeights:
+    - 11
+    - 3
+    - 1
+  - Name: Level 3 (target)
+    NoMatchWeight: 70
+    WinValues: 020000000300000005000000
+    WinWeights:
+    - 25
+    - 3
+    - 2
+  Source: 0
+  ManualTier: 0
+  NearMissChance: 0.55
+  SpinUpTime: 0.35
+  BaseSpinTime: 0.85
+  ReelStagger: 0.38
+  SuspenseTime: 0.7
+  ScrollSpeed: 2600
+  SettleTime: 0.35
+  MinLaps: 1
+  ResultHold: 0.7
+  RequireKeyPress: 1
+  StartKey: 32
+  StartPrompt: PRESS SPACE TO ROLL
+  InputGraceTime: 0.25
+  TestOnStart: 0
 --- !u!1 &721832735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,6 +1473,10 @@ GameObject:
   - component: {fileID: 721832737}
   - component: {fileID: 721832738}
   - component: {fileID: 721832739}
+  - component: {fileID: 721832740}
+  - component: {fileID: 721832741}
+  - component: {fileID: 721832742}
+  - component: {fileID: 721832743}
   m_Layer: 0
   m_Name: PuzzlePrefabLoader
   m_TagString: Untagged
@@ -1048,18 +1517,26 @@ MonoBehaviour:
   - {fileID: 3001000001, guid: 85e6f5008be9d1e4584168544dbc9cea, type: 3}
   - {fileID: 4001000001, guid: ee934665965afb349b8340da9c93ebe4, type: 3}
   - {fileID: 5001000001, guid: 4d9f48fbde71702479e1d6432d33a1c8, type: 3}
-  - {fileID: 954302560144864450, guid: 3bbf50895824dae4d9e6b39410c8cfe6, type: 3}
-  PuzzlePositionOffset: {x: 0, y: 10, z: -22.5}
+  PromiseX2AfterTutorial: 1
+  PromiseX2OnlyOnFirstRun: 0
+  PuzzlePositionOffset: {x: 0, y: 10, z: 0}
+  TopPadding: 2
   PuzzleRotation: {x: 0, y: 0, z: 0}
   PuzzleScale: {x: 1, y: 1, z: 1}
   UsePlayerLevel: 1
   ManualPuzzleIndex: 0
-  ForceLastPuzzle: 1
+  LevelSkrillaGoals: 64000000fa000000f4010000e8030000d0070000
+  ForceLastPuzzle: 0
   BackgroundPrefab: {fileID: 0}
-  BackgroundSprite: {fileID: 21300000, guid: 855d93821fe951742af3fe78b2197840, type: 3}
+  BackgroundSprite: {fileID: 21300000, guid: 07a1c36d441383246a5524db29055b26, type: 3}
   BackgroundPosition: {x: -2, y: 1, z: -50}
   BackgroundScale: {x: 50, y: 50, z: 1}
+  NormalizeGateShape: 1
   EnableDynamicEnhancement: 1
+  SideWallPrefab: {fileID: 3726684040606726451, guid: 882ee9ad1f31450488494a7df822ec18, type: 3}
+  WallThickness: 0.5
+  WallOverhang: 5
+  WallDepth: 3
 --- !u!114 &721832739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1073,13 +1550,163 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.PuzzleEnhancer
   UseUserStats: 1
-  UseTestStats: 0
+  UseTestStats: 1
   TestRiceCollected: 5000
   TestHelperCount: 5
-  Multiplier2xPrefab: {fileID: 4446269053292882638, guid: 93218a7ebbfeeb243864f1a42acbd910, type: 3}
-  Multiplier3xPrefab: {fileID: 0}
+  Multiplier2xPrefab: {fileID: 7908507379819368363, guid: a39ca42bde91ec7408003b2ceca45fc9, type: 3}
+  Multiplier3xPrefab: {fileID: 7908507379819368363, guid: a39ca42bde91ec7408003b2ceca45fc9, type: 3}
   BonusZonePrefab: {fileID: 0}
   HelpersForBonusZones: 3
+  AlwaysGuaranteeGate: 1
+--- !u!114 &721832740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721832735}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31e5cb690130e7a4498f50c3ac2d0421, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleTheme
+  WallMaterial: {fileID: 2100000, guid: 9af6aa8b0b641f0429204167150e62e4, type: 2}
+  FrameMaterial: {fileID: 2100000, guid: 96cf64445b7de1a42a324fe8ab172a00, type: 2}
+  SetBackground: 0
+  BackgroundColor: {r: 0.03, g: 0.04, b: 0.06, a: 1}
+--- !u!114 &721832741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721832735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f174d743716cfae48a3eae548422a02f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.TownSkinController
+  Tiers: []
+  Source: 0
+  ManualTier: 0
+  Thresholds: 03000000080000000f000000
+  BuildFacades: 0
+  FacadeWidth: 0.8
+  FacadeDepth: 0.2
+  FacadeOverhang: 2
+  BuildBackdrop: 1
+  BackdropZ: -20
+  BackdropPadding: 1.15
+  ReuseLoaderBackground: 1
+  TintExistingBackground: 0
+--- !u!114 &721832742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721832735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3fe9b838a198b244a44633291fd47c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.TownWallBuilder
+  BottomModules:
+  - {fileID: 919132149155446097, guid: 5dd9031f6260e34428c18c8ed1868610, type: 3}
+  - {fileID: 919132149155446097, guid: 15576a8ce1d73bc459116e26e8fc9507, type: 3}
+  BodyModules:
+  - {fileID: 919132149155446097, guid: a4670135ffc55ba44b8a72a6e8a2467c, type: 3}
+  - {fileID: 919132149155446097, guid: bbab87caffb1cd547ac1f0fb65996593, type: 3}
+  - {fileID: 919132149155446097, guid: 4fc3508d8d933794db61811d474125eb, type: 3}
+  - {fileID: 919132149155446097, guid: ba02e298a8282794093b224fb9c6a240, type: 3}
+  - {fileID: 919132149155446097, guid: 034230b91dafe314ea9a70a43ebeeb4d, type: 3}
+  - {fileID: 919132149155446097, guid: 129a1354396a47544a637229cf286167, type: 3}
+  - {fileID: 919132149155446097, guid: 05a9614b616edef47bfe5d8a9ce9f896, type: 3}
+  - {fileID: 919132149155446097, guid: 5c2fabe480373544aaf8505c00477a72, type: 3}
+  RoofModules:
+  - {fileID: 919132149155446097, guid: 02d8a2faee1951a43afcc43b48d13bb3, type: 3}
+  - {fileID: 919132149155446097, guid: fc796c82202e09749be1c7d55014a4c0, type: 3}
+  - {fileID: 919132149155446097, guid: c27b87b91e96f5642aeffd14709dfea8, type: 3}
+  ModuleScale: {x: 100, y: 100, z: 100}
+  ModuleRotation: {x: 270, y: 180, z: 0}
+  RightSideYRotation: 180
+  ZOffset: 0
+  AlignHorizontalByPivot: 1
+  InwardXOffset: 2
+  BottomExtend: 1
+  TopExtend: 1
+  HidePlaceholderWalls: 1
+  RandomSeed: -1
+  KitFolder: Assets/RiceballKit
+  SetFilter: Village
+--- !u!114 &721832743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721832735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1ee30c158de364448b0991cfc41f567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.PuzzlePropDresser
+  PropSets:
+  - Name: Shambles
+    LongThin:
+    - Prefab: {fileID: 919132149155446097, guid: 60e672a64a21ea44181d7052037f28fa, type: 3}
+      RotationOffset: {x: 0, y: 90, z: 0}
+      Fit: 1
+      TileSpacing: 1
+      RandomFlip: 1
+      SilhouetteScale: 0.25
+      DepthFill: 0
+      ImpactSurface: 0
+      Weight: 1.2
+    - Prefab: {fileID: 919132149155446097, guid: d1da37a1e7c064a42b4ae567f7b26419, type: 3}
+      RotationOffset: {x: 0, y: 90, z: 0}
+      Fit: 1
+      TileSpacing: 1
+      RandomFlip: 1
+      SilhouetteScale: 0.15
+      DepthFill: 0
+      ImpactSurface: 0
+      Weight: 1
+    WideShort:
+    - Prefab: {fileID: 919132149155446097, guid: 0008481340b98954b93117e2c1103593, type: 3}
+      RotationOffset: {x: 0, y: 0, z: 0}
+      Fit: 1
+      TileSpacing: 1
+      RandomFlip: 0
+      SilhouetteScale: 1
+      DepthFill: 0
+      ImpactSurface: 0
+      Weight: 1
+    Chunky:
+    - Prefab: {fileID: 919132149155446097, guid: d2467a51c6314064ba169f4facd422e6, type: 3}
+      RotationOffset: {x: 0, y: 0, z: 0}
+      Fit: 0
+      TileSpacing: 1
+      RandomFlip: 1
+      SilhouetteScale: 1
+      DepthFill: 0
+      ImpactSurface: 0
+      Weight: 1
+  Source: 0
+  ManualTier: 0
+  Thresholds: 03000000080000000f000000
+  ElongatedAspect: 1.8
+  ThinThreshold: 1.5
+  HideOriginalRenderer: 1
+  StampImpactSurface: 1
+  DressBasket: 1
+  NameBlocklist:
+  - PuzzleBounds
+  - DropperAnchor
+  RerollEachLoad: 0
+  SeedSalt: 0
+  OverhangTolerance: 0.15
+  VerboseLogging: 1
 --- !u!1 &766885287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1189,8 +1816,8 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 1
+  field of view: 49
+  orthographic: 0
   orthographic size: 10
   m_Depth: -1
   m_CullingMask:
@@ -1216,7 +1843,7 @@ Transform:
   m_GameObject: {fileID: 822821941}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -0.7, y: 1, z: 28.4}
+  m_LocalPosition: {x: -0.7, y: 1, z: 28.525898}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1278,11 +1905,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a0fb79038cf7b649aeb90138502a2a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.DropPuzzleCameraController
-  BoundsPadding: 3
+  OverviewOrthoSize: 13
+  BoardPlaneZ: 0
+  TopClearance: 2.5
   ReadyZoomFraction: 0.55
   ReadyOffset: {x: 0, y: 1.5}
   TransitionSpeed: 2.5
   AssessmentPrompt: Press [SPACE] when ready to drop
+  ShakeDecay: 1.4
+  MaxShake: 0.6
 --- !u!1 &849906690
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,7 +1995,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.PuzzleVariationLoader
   CurrentVariation: {fileID: 0}
   WallPrefab: {fileID: 3726684040606726451, guid: 882ee9ad1f31450488494a7df822ec18, type: 3}
-  MultiplierGatePrefab: {fileID: 0}
+  MultiplierGatePrefab: {fileID: 387820301074253229, guid: f073d7fca6d6a064fa47407a43d206d8, type: 3}
   GoalGatePrefab: {fileID: 0}
   WallMaterial: {fileID: 0}
   MultiplierMaterials: []
@@ -1556,6 +2187,8 @@ MonoBehaviour:
   musicSource: {fileID: 0}
   sfxSource: {fileID: 0}
   fadeDuration: 0.1
+  musicVolume: 0.4
+  sfxVolume: 0.5
 --- !u!4 &1038845903
 Transform:
   m_ObjectHideFlags: 0
@@ -1791,6 +2424,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1250113722}
   - component: {fileID: 1250113723}
+  - component: {fileID: 1250113724}
+  - component: {fileID: 1250113725}
   m_Layer: 0
   m_Name: Dropper
   m_TagString: Untagged
@@ -1807,7 +2442,7 @@ Transform:
   m_GameObject: {fileID: 1250113720}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: -0, y: 10, z: 0}
+  m_LocalPosition: {x: 0, y: 13, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1840,6 +2475,100 @@ MonoBehaviour:
   DropAllAtOnce: 1
   DropInterval: 0.1
   useInventorySystem: 1
+--- !u!108 &1250113724
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250113720}
+  m_Enabled: 1
+  serializedVersion: 12
+  m_Type: 2
+  m_Color: {r: 1, g: 0.86, b: 0.62, a: 1}
+  m_Intensity: 6
+  m_Range: 16
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!114 &1250113725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250113720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &1370524059
 GameObject:
   m_ObjectHideFlags: 0
@@ -1883,6 +2612,122 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 297.8811, y: 54.96549, z: -234.81}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1398356039
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1398356041}
+  - component: {fileID: 1398356040}
+  m_Layer: 0
+  m_Name: SlotSpinner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1398356040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398356039}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d22d52bd5d9796438754575f86e7f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Vampire.DropPuzzle.SlotSpinner
+  SlotRigPrefab: {fileID: 919132149155446097, guid: 24cfd35ce9a7dee4e95a683fb2dc19ae, type: 3}
+  StagingPosition: {x: 0, y: 1000, z: 0}
+  InWorldMode: 0
+  InWorldPosition: {x: 0, y: 6, z: 0}
+  InWorldEuler: {x: 0, y: 0, z: 0}
+  InWorldScale: 1
+  AutoFitHeight: 3
+  ShowWorldLabel: 1
+  RigEuler: {x: 180, y: 0, z: 0}
+  CameraYaw: 0
+  CameraPitch: 0
+  HideCabinet: 0
+  FrameWholeRig: 1
+  RigScale: {x: 2, y: 2}
+  RenderTextureSize: 768
+  WindowAspect: 0.6
+  CameraFOV: 32
+  CameraDistance: 0
+  WindowViewHeight: 0.95
+  BackgroundColor: {r: 0.03, g: 0.02, b: 0.06, a: 1}
+  MaxSpinSpeed: 900
+  SpinDuration: 2.2
+  SettleDuration: 0.7
+  SpinSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 8.333334
+      outSlope: 8.333334
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.12
+      value: 1
+      inSlope: 5.294574
+      outSlope: 5.294574
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.55
+      value: 0.85
+      inSlope: -0.7945219
+      outSlope: -0.7945219
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.12
+      inSlope: -1.6222223
+      outSlope: -1.6222223
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SocketValues: 02000000030000000400000005000000020000000300000004000000050000000200000003000000
+  CardWidth: 2.8
+  CardHeight: 0.68
+  LabelWidth: 0.95
+  LabelHeight: 0.55
+  TestOnStart: 0
+  TestLandValue: 5
+--- !u!4 &1398356041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398356039}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2129,8 +2974,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 0.93, b: 0.82, a: 1}
+  m_Intensity: 2.2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -2192,7 +3037,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1666988629}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: -0.000000018473234, y: 0.9063078, z: -0.4226183, w: -0.000000039615973}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2647,3 +3492,7 @@ SceneRoots:
   - {fileID: 1370524061}
   - {fileID: 1038845903}
   - {fileID: 389883126}
+  - {fileID: 668413132}
+  - {fileID: 1398356041}
+  - {fileID: 70761978}
+  - {fileID: 274458686}

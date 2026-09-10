@@ -9,6 +9,9 @@ namespace Vampire.DropPuzzle
     {
         public static TutorialManager Instance { get; private set; }
 
+        /// <summary>Fired when the tutorial finishes (completed or skipped). Gated shops listen for this.</summary>
+        public static event System.Action OnTutorialComplete;
+
         [Header("Tutorial State")]
         public bool tutorialActive = true;
         public int tutorialStep = 0;
@@ -24,6 +27,10 @@ namespace Vampire.DropPuzzle
         [Header("Tutorial NPCs")]
         [Tooltip("Snerd NPC in FPS scene — hidden until quest 1 completes")]
         public GameObject SnerdNPCInFPS;
+
+        [Tooltip("Boombox in FPS scene — hidden until the player first talks to Snerd (step 2), " +
+                 "then revealed and starts the FPS background music.")]
+        public GameObject BoomboxInFPS;
 
         [Header("Shop Configuration")]
         [Tooltip("BuyZone GameObject — enabled after tutorial completes")]
@@ -55,9 +62,10 @@ namespace Vampire.DropPuzzle
         private DayNightCycleManager cycleManager;
         private PlayerDataManager playerData;
 
-        private Vector3 _savedFPSPosition;
-        private Quaternion _savedFPSRotation;
-        private bool _hasSavedFPSPosition;
+        private Vector3 _savedPosition;
+        private Quaternion _savedRotation;
+        private bool _hasSavedPosition;
+        private string _savedPositionScene;
 
         private void Awake()
         {
@@ -73,6 +81,11 @@ namespace Vampire.DropPuzzle
             if (BuyZone != null) BuyZone.SetActive(false);
             if (FlinkCharacter != null) FlinkCharacter.SetActive(false);
             if (SnerdNPCInFPS != null) SnerdNPCInFPS.SetActive(false);
+            if (BoomboxInFPS != null) BoomboxInFPS.SetActive(false);
+
+            // No FPS background music during the opening quest — Snerd introduces the boombox at step 2.
+            if (tutorialActive)
+                Player.FPSAudioManager.AutoPlayMusicOnStart = false;
         }
 
         private void Start()
@@ -97,7 +110,9 @@ namespace Vampire.DropPuzzle
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name == FPSSceneName && _hasSavedFPSPosition)
+            // Restore the saved position when we return to the scene it was captured in
+            // (e.g. after a Snerd comic reloads the house), so the player isn't teleported.
+            if (_hasSavedPosition && scene.name == _savedPositionScene)
                 StartCoroutine(RestorePlayerPosition());
         }
 
@@ -109,17 +124,19 @@ namespace Vampire.DropPuzzle
             {
                 var cc = player.GetComponent<CharacterController>();
                 if (cc != null) cc.enabled = false;
-                player.transform.SetPositionAndRotation(_savedFPSPosition, _savedFPSRotation);
+                player.transform.SetPositionAndRotation(_savedPosition, _savedRotation);
                 if (cc != null) cc.enabled = true;
             }
-            _hasSavedFPSPosition = false;
+            _hasSavedPosition = false;
         }
 
+        /// <summary>Remember the player's spot + which scene it was in, for restore on that scene's reload.</summary>
         public void SavePlayerPosition(Vector3 position, Quaternion rotation)
         {
-            _savedFPSPosition   = position;
-            _savedFPSRotation   = rotation;
-            _hasSavedFPSPosition = true;
+            _savedPosition      = position;
+            _savedRotation      = rotation;
+            _savedPositionScene = SceneManager.GetActiveScene().name;
+            _hasSavedPosition   = true;
         }
 
         private IEnumerator StartTutorial()
@@ -148,12 +165,12 @@ namespace Vampire.DropPuzzle
             questManager.AddQuest(QUEST_SNERD_FPS,    "Talk to Snerd",           "Find Snerd and talk to him",                 QuestManager.QuestType.TalkToSnerd,   1);
             questManager.AddQuest(QUEST_RICE_50,      "Collect More Rice",       "Collect 50 rice grains",                     QuestManager.QuestType.CollectRice,   50);
             questManager.AddQuest(QUEST_GO_BASE,      "Go into the House",       "Enter the house at the end of the field",    QuestManager.QuestType.GoToBase,      1);
-            questManager.AddQuest(QUEST_SNERD_BASE_1, "Talk to Snerd",           "Find Snerd inside and talk to him",          QuestManager.QuestType.TalkToSnerd,   1);
-            questManager.AddQuest(QUEST_CRAFT,        "Craft Riceballs",         "Craft 5 riceballs at Snerd (Press [E])",     QuestManager.QuestType.CraftRiceBalls,5);
+            questManager.AddQuest(QUEST_SNERD_BASE_1, "Get Crafting Device",     "Get the rice crafting device from Snerd",    QuestManager.QuestType.TalkToSnerd,   1);
+            questManager.AddQuest(QUEST_CRAFT,        "Craft Riceballs",         "Craft 5 riceballs yourself (Press [E])",     QuestManager.QuestType.CraftRiceBalls,5);
             questManager.AddQuest(QUEST_SNERD_BASE_2, "Talk to Snerd",           "Talk to Snerd again",                        QuestManager.QuestType.TalkToSnerd,   1);
             questManager.AddQuest(QUEST_GO_OUTSIDE,   "Go Outside",              "Head outside at night",                      QuestManager.QuestType.VisitBallDrop, 1);
             questManager.AddQuest(QUEST_DROP,         "Drop the Riceballs",      "Complete a ball drop",                       QuestManager.QuestType.DropRiceBalls, 1);
-            questManager.AddQuest(QUEST_MONEY,        "Earn Money",              "Collect $0.50 from ball drops",              QuestManager.QuestType.CollectCurrency,50);
+            questManager.AddQuest(QUEST_MONEY,        "Earn Skrilla",            "Collect $0.50 of skrilla from ball drops",   QuestManager.QuestType.CollectCurrency,50);
         }
 
         private void OnQuestCompleted(QuestManager.Quest quest)
@@ -170,6 +187,12 @@ namespace Vampire.DropPuzzle
                     tutorialStep = 3;
                     if (playerData != null)
                         playerData.RiceGrains = Mathf.Max(0, playerData.RiceGrains - 10);
+
+                    // Snerd introduces the boombox: reveal it and start the FPS background music.
+                    if (BoomboxInFPS != null) BoomboxInFPS.SetActive(true);
+                    Player.FPSAudioManager.AutoPlayMusicOnStart = true;
+                    Player.FPSAudioManager.Instance?.PlayBackgroundMusic();
+
                     questManager.StartQuest(QUEST_RICE_50);
                     TriggerComic(snerdFPSComic, FPSSceneName);
                     break;
@@ -302,10 +325,15 @@ namespace Vampire.DropPuzzle
             tutorialActive = false;
 
             if (PlayerDataManager.Instance != null)
+            {
                 PlayerDataManager.Instance.TutorialCompleted = true;
+                PlayerDataManager.Instance.HasCraftingDevice = true; // ensure crafting is usable post-tutorial
+            }
 
             if (BuyZone != null) BuyZone.SetActive(true);
             if (FlinkCharacter != null) FlinkCharacter.SetActive(true);
+
+            OnTutorialComplete?.Invoke();
         }
 
         public void SetupTutorialPuzzle()
@@ -322,7 +350,10 @@ namespace Vampire.DropPuzzle
         public void SkipTutorial()
         {
             tutorialActive = false;
+            if (PlayerDataManager.Instance != null)
+                PlayerDataManager.Instance.HasCraftingDevice = true; // skipping tutorial still grants the device
             ForceNight();
+            OnTutorialComplete?.Invoke();
         }
     }
 }

@@ -116,7 +116,7 @@ namespace Vampire.DropPuzzle
             if (guiStyle == null)
             {
                 guiStyle = new GUIStyle(GUI.skin.box);
-                guiStyle.fontSize = 24;
+                guiStyle.fontSize = 16;
                 guiStyle.alignment = TextAnchor.MiddleCenter;
                 guiStyle.normal.textColor = Color.white;
                 guiStyle.normal.background = MakeTexture(2, 2, new Color(0, 0, 0, 0.7f));
@@ -160,7 +160,7 @@ namespace Vampire.DropPuzzle
             titleStyle.alignment = TextAnchor.MiddleCenter;
             titleStyle.normal.textColor = Color.yellow;
             
-            GUI.Label(new Rect(windowX, windowY + 20, windowWidth, 50), "Flink's Shop - FPS Upgrades", titleStyle);
+            GUI.Label(new Rect(windowX, windowY + 20, windowWidth, 50), "Flink's Shop - Crafting Quality", titleStyle);
             
             // Currency display
             GUIStyle currencyStyle = new GUIStyle(GUI.skin.label);
@@ -189,99 +189,87 @@ namespace Vampire.DropPuzzle
             float leftMargin = windowX + 30;
             float rightMargin = windowWidth - 60;
             
-            // ━━━ Pickup Radius ━━━
-            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30), 
-                $"━━━ Pickup Radius: {playerData.FPSCollector.pickupRadius:F2} (Max: 5.0) ━━━", labelStyle);
+            var craft = playerData.Crafting;
+
+            // ━━━ Good Quality (2×) ━━━
+            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30),
+                $"━━━ Good Quality (2×): {(craft.goodChance > 0 ? $"{craft.goodChance * 100:F0}%" : "Locked")} (Max: 50%) ━━━", labelStyle);
             yPos += 35;
-            
-            if (DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
-                playerData.FPSCollector.pickupRadius < 5.0f,
-                () => shop != null && shop.BuyPickupRadiusUpgrade(),
-                "Pickup Radius +0.25",
-                GetPickupRadiusCost(playerData.FPSCollector.pickupRadius)))
+
+            if (craft.goodChance == 0)
             {
-                // Purchase succeeded
-            }
-            
-            yPos += 10;
-            
-            // ━━━ Multi-Pickup ━━━
-            int maxPickups = playerData.FPSCollector.maxSimultaneousPickups;
-            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30), 
-                $"━━━ Multi-Pickup: {maxPickups} rice(s) (Max: 5) ━━━", labelStyle);
-            yPos += 35;
-            
-            if (maxPickups == 1)
-            {
-                if (DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
-                    true,
-                    () => shop != null && shop.UnlockMultiPickup(),
-                    "🔓 Unlock Multi-Pickup (2 rices)",
-                    400))
-                {
-                    // Purchase succeeded
-                }
-            }
-            else if (maxPickups < 5)
-            {
-                if (DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
-                    true,
-                    () => shop != null && shop.BuyMultiPickupUpgrade(),
-                    $"Multi-Pickup +1 ({maxPickups} → {maxPickups + 1})",
-                    GetMultiPickupCost(maxPickups)))
-                {
-                    // Purchase succeeded
-                }
+                DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                    true, () => shop != null && shop.UnlockGoodQuality(),
+                    "🔓 Unlock Good Quality (2× value)", 250);
             }
             else
             {
-                GUI.Label(new Rect(leftMargin, yPos, rightMargin, 25), 
-                    "✅ MAXED OUT", new GUIStyle(smallLabelStyle) { normal = { textColor = Color.cyan } });
-                yPos += 30;
+                int lvl = (int)((craft.goodChance - 0.2f) * 100 / 5);
+                DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                    craft.goodChance < 0.5f, () => shop != null && shop.BuyGoodQualityUpgrade(),
+                    "Good Chance +5%", 150 + lvl * 50);
             }
-            
+
             yPos += 10;
-            
-            // ━━━ Magnetic Pull ━━━
-            bool magneticEnabled = playerData.FPSCollector.magneticPullEnabled;
-            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30), 
-                $"━━━ Magnetic Pull: {(magneticEnabled ? "ON" : "OFF")} ━━━", labelStyle);
+
+            // ━━━ Great Quality (4×) ━━━
+            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30),
+                $"━━━ Great Quality (4×): {(craft.greatChance > 0 ? $"{craft.greatChance * 100:F0}%" : "Locked")} (Max: 20%) ━━━", labelStyle);
             yPos += 35;
-            
-            if (!magneticEnabled)
+
+            if (craft.greatChance == 0)
             {
-                if (DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
-                    true,
-                    () => shop != null && shop.UnlockMagneticPull(),
-                    "🔓 Unlock Magnetic Pull (rice flies to you!)",
-                    800))
-                {
-                    // Purchase succeeded
-                }
+                if (craft.goodChance >= 0.3f)
+                    DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                        true, () => shop != null && shop.UnlockGreatQuality(),
+                        "🔓 Unlock Great Quality (4× value)", 600);
+                else
+                    DrawLocked(leftMargin, ref yPos, rightMargin, smallLabelStyle, "🔒 Reach 30% Good Quality first");
             }
             else
             {
-                GUI.Label(new Rect(leftMargin, yPos, rightMargin, 25), 
-                    $"✅ UNLOCKED - Radius: {playerData.FPSCollector.magneticPullRadius:F1}", 
-                    new GUIStyle(smallLabelStyle) { normal = { textColor = Color.cyan } });
-                yPos += 30;
+                int lvl = (int)((craft.greatChance - 0.05f) * 100 / 2);
+                DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                    craft.greatChance < 0.2f, () => shop != null && shop.BuyGreatQualityUpgrade(),
+                    "Great Chance +2%", 300 + lvl * 100);
             }
-            
+
             yPos += 10;
-            
-            // ━━━ Move Speed ━━━
-            float speedMult = playerData.FPSCollector.moveSpeedMultiplier;
-            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30), 
-                $"━━━ Move Speed: {speedMult:F1}x (Max: 2.0x) ━━━", labelStyle);
+
+            // ━━━ Excellent Quality (5×) ━━━
+            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30),
+                $"━━━ Excellent Quality (5×): {(craft.excellentChance > 0 ? $"{craft.excellentChance * 100:F0}%" : "Locked")} (Max: 10%) ━━━", labelStyle);
             yPos += 35;
-            
-            if (DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
-                speedMult < 2.0f,
-                () => shop != null && shop.BuyMoveSpeedUpgrade(),
-                $"Move Speed +10% ({speedMult:F1}x → {speedMult + 0.1f:F1}x)",
-                GetMoveSpeedCost(speedMult)))
+
+            if (craft.excellentChance == 0)
             {
-                // Purchase succeeded
+                if (craft.greatChance >= 0.1f)
+                    DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                        true, () => shop != null && shop.UnlockExcellentQuality(),
+                        "🔓 Unlock Excellent Quality (5× value!)", 2000);
+                else
+                    DrawLocked(leftMargin, ref yPos, rightMargin, smallLabelStyle, "🔒 Reach 10% Great Quality first");
+            }
+            else
+            {
+                int lvl = (int)((craft.excellentChance - 0.01f) * 100);
+                DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                    craft.excellentChance < 0.1f, () => shop != null && shop.BuyExcellentQualityUpgrade(),
+                    "Excellent Chance +1%", 1000 + lvl * 500);
+            }
+
+            yPos += 10;
+
+            // ━━━ Crafting Speed ━━━
+            GUI.Label(new Rect(leftMargin, yPos, rightMargin, 30),
+                $"━━━ Crafting Speed: {craft.craftingSpeedMultiplier:F1}x (Max: 3.0x) ━━━", labelStyle);
+            yPos += 35;
+
+            {
+                int lvl = (int)((craft.craftingSpeedMultiplier - 1.0f) * 5);
+                DrawUpgradeButton(leftMargin, ref yPos, rightMargin, buttonStyle, smallLabelStyle, playerData,
+                    craft.craftingSpeedMultiplier < 3.0f, () => shop != null && shop.BuyCraftingSpeedUpgrade(),
+                    "Crafting Speed +20%", 200 + lvl * 100);
             }
             
             // Close button
@@ -328,7 +316,15 @@ namespace Vampire.DropPuzzle
             y += 50;
             return false;
         }
-        
+
+        /// <summary>Draws a greyed-out "locked / prerequisite" line and advances y.</summary>
+        private void DrawLocked(float x, ref float y, float maxWidth, GUIStyle labelStyle, string message)
+        {
+            GUI.Label(new Rect(x, y, maxWidth, 25), message,
+                new GUIStyle(labelStyle) { normal = { textColor = new Color(0.6f, 0.6f, 0.6f) } });
+            y += 40;
+        }
+
         private int GetPickupRadiusCost(float currentRadius)
         {
             int currentLevel = (int)((currentRadius - 1.5f) / 0.25f);

@@ -29,7 +29,7 @@
 }
 
 .panel-title {
-    font-size: 13px;
+    font-size: 15px;
     color: rgb(255, 213, 79);
     margin-bottom: 6px;
     -unity-font-style: bold;
@@ -100,29 +100,35 @@
 }
 
 .quest-none {
-    font-size: 12px;
-    color: rgb(100, 100, 100);
+    font-size: 14px;
+    color: rgb(120, 120, 120);
+    white-space: normal;
 }
 
 .quest-item {
     flex-direction: column;
+    /* let the box grow with wrapped text instead of clipping */
+    flex-shrink: 0;
 }
 
 .quest-title-label {
-    font-size: 13px;
+    font-size: 16px;
     color: rgb(242, 242, 242);
-    margin-bottom: 2px;
+    -unity-font-style: bold;
+    margin-bottom: 3px;
+    white-space: normal;
 }
 
 .quest-desc {
-    font-size: 11px;
-    color: rgb(160, 160, 160);
-    margin-bottom: 4px;
+    font-size: 13px;
+    color: rgb(170, 170, 170);
+    margin-bottom: 6px;
+    white-space: normal;
 }
 
 .quest-progress {
-    font-size: 11px;
-    color: rgb(122, 122, 122);
+    font-size: 12px;
+    color: rgb(140, 140, 140);
     margin-bottom: 4px;
 }
 

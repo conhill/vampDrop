@@ -43,6 +43,7 @@ namespace Vampire
         private const string FPSScene   = "FPS_Collect";
         private const string DropScene  = "DropPuzzle";
         private const string ComicScene = "Comic";
+        private const string HouseScene = "Base";
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -164,11 +165,11 @@ namespace Vampire
                 CloseMenu();
             y += bH + 10f;
 
-            // Go Back to FPS (drop scene only)
+            // Return to the house (drop scene only)
             if (inDrop)
             {
-                if (GUI.Button(new Rect(cx - bW * 0.5f, y, bW, bH), "Go Back to FPS", _btnSecondary))
-                    GoBackToFPS();
+                if (GUI.Button(new Rect(cx - bW * 0.5f, y, bW, bH), "Return to House", _btnSecondary))
+                    GoBackToHouse();
                 y += bH + 10f;
             }
 
@@ -219,13 +220,11 @@ namespace Vampire
             }
         }
 
-        private void GoBackToFPS()
+        private void GoBackToHouse()
         {
             CloseMenu();
-            if (GameSceneManager.Instance != null)
-                GameSceneManager.Instance.ReturnToFPS();
-            else
-                SceneManager.LoadScene(FPSScene);
+            // Leaving the drop puzzle returns to the house (Base), not the FPS scene.
+            SceneManager.LoadScene(HouseScene);
         }
 
         private void ApplyVolumesToScene()
@@ -234,6 +233,14 @@ namespace Vampire
             if (fps  != null) { fps.SetMusicVolume(_musicVolume);  fps.SetSFXVolume(_sfxVolume);  }
             var drp = FindFirstObjectByType<DropPuzzle.BallDropAudioManager>();
             if (drp != null) { drp.SetMusicVolume(_musicVolume); drp.SetSFXVolume(_sfxVolume); }
+
+            // The drop puzzle's actual gameplay SFX do not live on BallDropAudioManager — its
+            // sfxSource plays only the transition sting. Score/multiplier stingers are on
+            // DropPuzzleJuice, and ball impacts on RiceBallImpactAudio (which reads the master
+            // level off BallDropAudioManager itself, so it needs no call here). Without this
+            // the SFX slider left most of the drop puzzle untouched.
+            var juice = FindFirstObjectByType<DropPuzzle.DropPuzzleJuice>();
+            if (juice != null) juice.SetMasterVolume(_sfxVolume);
         }
 
         private void SavePrefs()

@@ -21,8 +21,8 @@ namespace Vampire.Player
         public float walkSpeed = 7f;
         public float runSpeed = 12f;
         public float crouchSpeed = 3f;
-        public float jumpHeight = 2.5f;
-        public float gravity = -19.62f;
+        public float jumpHeight = 1.3f;
+        public float gravity = -30f;
 
         [Header("Look Settings")]
         public float mouseSensitivity = 2f;
@@ -232,9 +232,9 @@ namespace Vampire.Player
             }
 
             // ── Gravity ───────────────────────────────────────────────────────
+            // NOTE: do NOT damp velocity.y in the air — that fights gravity and makes
+            // the fall floaty. Let gravity accelerate naturally.
             velocity.y += gravity * Time.deltaTime;
-            if (!isGrounded)
-                velocity.y *= (1f - yVelocityDamping * Time.deltaTime);
 
             controller.Move(velocity * Time.deltaTime);
         }

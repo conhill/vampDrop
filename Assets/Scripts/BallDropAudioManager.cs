@@ -30,6 +30,10 @@ namespace Vampire.DropPuzzle
         [Header("Settings")]
         [Tooltip("Fade duration when transitioning between tracks")]
         public float fadeDuration = 0.5f;
+
+        [Header("Volume")]
+        [Range(0f, 1f)] public float musicVolume = 0.4f;
+        [Range(0f, 1f)] public float sfxVolume   = 0.5f;
         
         public enum DropState
         {
@@ -39,6 +43,18 @@ namespace Vampire.DropPuzzle
             Complete        // All done
         }
         
+        // Settings-slider levels, applied as multipliers over the authored mix above.
+        private float _musicMaster = 1f;
+        private float _sfxMaster   = 1f;
+
+        /// <summary>
+        /// The settings-slider SFX level on its own, WITHOUT this component's authored
+        /// sfxVolume folded in. RiceBallImpactAudio scales impacts by this: it wants the
+        /// player's master setting, not the mix level of the transition sting, which is the
+        /// only thing sfxSource actually plays.
+        /// </summary>
+        public float SfxMasterLevel => _sfxMaster;
+
         private DropState currentState = DropState.PreDrop;
         private BallDropCompletionManager completionManager;
         private DropperControllerECS dropperController;
@@ -74,7 +90,7 @@ namespace Vampire.DropPuzzle
                 musicSource.loop = true;
                 musicSource.playOnAwake = false;
             }
-            
+
             if (sfxSource == null)
             {
                 GameObject sfxObj = new GameObject("SFXSource");
@@ -83,6 +99,10 @@ namespace Vampire.DropPuzzle
                 sfxSource.loop = false;
                 sfxSource.playOnAwake = false;
             }
+
+            // Authored level x settings-slider master. Assigning musicVolume raw here would
+            // be undone the moment EscapeMenuManager applies its slider anyway.
+            ApplyVolumes();
             
             // Subscribe to completion event
             if (completionManager != null)
@@ -217,25 +237,35 @@ namespace Vampire.DropPuzzle
         }
         
         /// <summary>
-        /// Set music volume
+        /// Master music level from the settings slider, 0..1.
+        ///
+        /// This SCALES the authored musicVolume rather than replacing it. It used to assign
+        /// musicSource.volume directly, which threw away the mix balance set in the scene:
+        /// EscapeMenuManager defaults its slider to 1.0 and applies it on startup, so an
+        /// authored 0.4 music bed was silently pushed to full and buried the impact SFX.
         /// </summary>
         public void SetMusicVolume(float volume)
         {
-            if (musicSource != null)
-            {
-                musicSource.volume = Mathf.Clamp01(volume);
-            }
+            _musicMaster = Mathf.Clamp01(volume);
+            ApplyVolumes();
         }
-        
+
         /// <summary>
-        /// Set SFX volume
+        /// Master SFX level from the settings slider, 0..1. Scales sfxVolume, same as above.
+        /// Note this source only carries TransitionSound — gameplay SFX live on
+        /// RiceBallImpactAudio and DropPuzzleJuice, which the menu drives separately.
         /// </summary>
         public void SetSFXVolume(float volume)
         {
-            if (sfxSource != null)
-            {
-                sfxSource.volume = Mathf.Clamp01(volume);
-            }
+            _sfxMaster = Mathf.Clamp01(volume);
+            ApplyVolumes();
+        }
+
+        /// <summary>Push authored level x master level onto whichever sources exist.</summary>
+        private void ApplyVolumes()
+        {
+            if (musicSource != null) musicSource.volume = Mathf.Clamp01(musicVolume * _musicMaster);
+            if (sfxSource   != null) sfxSource.volume   = Mathf.Clamp01(sfxVolume   * _sfxMaster);
         }
     }
 }

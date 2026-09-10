@@ -32,11 +32,11 @@ namespace Vampire.DropPuzzle
         public bool DropAllAtOnce = true;
         public float DropInterval = 0.25f; // Slower spawn to prevent stacking
         public bool useInventorySystem = true; // Use crafted riceballs from inventory
+
         
         /// <summary>Fired when the player commits to dropping (camera listens to zoom out).</summary>
         public static event System.Action OnAnyDropStarted;
 
-        private float moveDirection = 1f;
         private bool isDropping = false;
         private bool hasDropped = false;
         private float _dropCenterX = 0f;
@@ -93,11 +93,8 @@ namespace Vampire.DropPuzzle
         
         private void Update()
         {
-            // Move dropper back and forth
-            if (!isDropping)
-            {
-                MoveDropper();
-            }
+            // Knox moves left/right with A/D — allowed at all times, even during drop
+            HandleKnoxMovement();
             
             // Check for drop input — camera controller gates this during assessment
             if (Input.GetKeyDown(KeyCode.Space) && !hasDropped
@@ -132,15 +129,19 @@ namespace Vampire.DropPuzzle
             }
         }
         
-        private void MoveDropper()
+        private void HandleKnoxMovement()
         {
-            float newX = transform.position.x + (moveDirection * MoveSpeed * Time.deltaTime);
-            float lo = _dropCenterX - MoveRange;
-            float hi = _dropCenterX + MoveRange;
+            if (!DropPuzzleFlowManager.AllowPlayerInput) return;
 
-            if (newX > hi) { newX = hi; moveDirection = -1f; }
-            else if (newX < lo) { newX = lo; moveDirection =  1f; }
+            float input = 0f;
+            if (Input.GetKey(KeyCode.A)) input = 1f;
+            else if (Input.GetKey(KeyCode.D)) input = -1f;
+            if (input == 0f) return;
 
+            float newX = Mathf.Clamp(
+                transform.position.x + input * MoveSpeed * Time.deltaTime,
+                _dropCenterX - MoveRange,
+                _dropCenterX + MoveRange);
             transform.position = new Vector3(newX, transform.position.y, transform.position.z);
         }
         
@@ -243,6 +244,7 @@ namespace Vampire.DropPuzzle
             {
                 float randomX = UnityEngine.Random.Range(-BallRadius * 3f, BallRadius * 3f);
                 float randomY = UnityEngine.Random.Range(0f, BallRadius * 0.5f);
+
                 float3 spawnPos = new float3(
                     DropPoint.position.x + randomX,
                     DropPoint.position.y - 0.3f + randomY,
@@ -269,6 +271,15 @@ namespace Vampire.DropPuzzle
 
                 yield return new WaitForSeconds(DropInterval);
             }
+
+            // Every ball is out. Until this point BallDropCompletionManager cannot tell a
+            // drop that has not started from one that has finished — the entities are all
+            // created up front, parked and asleep — so its completion checks stay disarmed
+            // until now. Without this signal the puzzle never ends on its own.
+            if (completionManager != null)
+                completionManager.NotifyReleaseComplete();
+
+            isDropping = false;
 
             // Debug.Log($"[DropperControllerECS] ✅ Dropped {ballsToDrop} balls!");
         }
@@ -430,14 +441,16 @@ namespace Vampire.DropPuzzle
         private void OnGUI()
         {
             if (hasDropped) return;
+            if (!DropPuzzleFlowManager.AllowPlayerInput) return;
 
-            // Build style once — new GUIStyle() every frame was the allocation source
+            // Build style once
             if (!_guiStyleBuilt)
             {
                 _guiStyle = new GUIStyle(GUI.skin.label)
                 {
-                    fontSize  = 18,
-                    alignment = TextAnchor.MiddleLeft
+                    fontSize  = 20,
+                    alignment = TextAnchor.MiddleCenter,
+                    wordWrap  = true
                 };
                 _guiStyle.normal.textColor = Color.white;
                 _guiStyleBuilt = true;
@@ -449,23 +462,24 @@ namespace Vampire.DropPuzzle
             else if (DropPuzzleManager.Instance != null)
                 ballCount = DropPuzzleManager.Instance.RiceBallsAvailable;
 
-            // Only rebuild the label string when the count changes
             if (ballCount != _lastGuiBallCount)
             {
                 _lastGuiBallCount = ballCount;
                 if (ballCount > 0)
                 {
                     _guiStyle.normal.textColor = Color.green;
-                    _guiLabelStr = $"Press SPACE to drop {ballCount} riceballs";
+                    _guiLabelStr = $"[A/D] Move\n[SPACE] Drop {ballCount} balls";
                 }
                 else
                 {
                     _guiStyle.normal.textColor = Color.red;
-                    _guiLabelStr = "No riceballs! Press [Esc] to go back";
+                    _guiLabelStr = "No riceballs!\n[Esc] to go back";
                 }
             }
 
-            GUI.Label(new Rect(10, 60, 400, 30), _guiLabelStr, _guiStyle);
+            // Draw in the left column (first 20% of screen), near the bottom
+            float colW = Screen.width * 0.19f;
+            GUI.Label(new Rect(5, Screen.height - 120f, colW, 80f), _guiLabelStr, _guiStyle);
         }
         
         private void OnDrawGizmos()

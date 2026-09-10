@@ -158,7 +158,7 @@ namespace Vampire.DropPuzzle
             {
                 _guiStyle = new GUIStyle(GUI.skin.label)
                 {
-                    fontSize  = 20,
+                    fontSize  = 16,
                     alignment = TextAnchor.MiddleCenter
                 };
                 _guiStyle.normal.textColor = Color.white;

@@ -108,6 +108,17 @@ namespace Vampire.DropPuzzle
 
                 physics.ValueRW.Position = newPosition;
 
+                // Cosmetic spin: roll about Z (screen-facing axis) proportional to
+                // horizontal speed, so balls visibly tumble instead of sliding.
+                float spinRadius = physics.ValueRO.Radius;
+                if (spinRadius > 0.001f)
+                {
+                    float angularSpeed = -physics.ValueRO.Velocity.x / spinRadius; // rad/sec
+                    transform.ValueRW.Rotation = math.mul(
+                        transform.ValueRO.Rotation,
+                        quaternion.RotateZ(angularSpeed * deltaTime));
+                }
+
                 float velocityMagnitude = math.length(physics.ValueRO.Velocity);
                 if (velocityMagnitude < 0.015f && math.abs(physics.ValueRO.Velocity.y) < 0.03f)
                 {
@@ -127,11 +138,13 @@ namespace Vampire.DropPuzzle
     [UpdateAfter(typeof(RiceBallPhysicsSystem))]
     public partial struct RiceBallDeletionSystem : ISystem
     {
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<RiceBallTag>();
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -152,13 +165,23 @@ namespace Vampire.DropPuzzle
 
     /// <summary>
     /// FAST ball-to-ball collision using spatial hash grid - O(n) instead of O(n²)!
-    /// TEMPORARILY DISABLED FOR PERFORMANCE TESTING
+    /// Re-enabled: it was never actually disabled despite the old comment - commenting out
+    /// [UpdateInGroup]/[UpdateAfter] doesn't stop an ISystem from auto-creating and ticking
+    /// every frame, so this was running unscheduled (no defined order relative to
+    /// RiceBallPhysicsSystem) the whole time. Explicitly ordered now, and gated with
+    /// RequireForUpdate so it costs nothing in scenes with no riceballs (e.g. FPS_Collect).
     /// </summary>
-    // [BurstCompile]
-    // [UpdateInGroup(typeof(SimulationSystemGroup))]
-    // [UpdateAfter(typeof(RiceBallPhysicsSystem))]
+    [BurstCompile]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(RiceBallPhysicsSystem))]
     public partial struct RiceBallCollisionSystem : ISystem
     {
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<RiceBallTag>();
+        }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
